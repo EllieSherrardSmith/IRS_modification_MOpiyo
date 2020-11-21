@@ -20,8 +20,8 @@ w_Acte = yy_Acte = z_Acte = w_Sumi = yy_Sumi = z_Sumi = array(dim=c(180,4))
 PHI_B_mut = 0.85 ## probability of bites in bed
 PHI_I_mut = 0.90 ## probability of bites indoors
 
-PHI_B_boa = 0.8 ## probability of bites in bed
-PHI_I_boa = 0.86 ## probability of bites indoors
+PHI_B_boa = 0.85 ## probability of bites in bed
+PHI_I_boa = 0.90 ## probability of bites indoors
 
 # return(list(mean_prediction,
 #             feed2,
@@ -178,12 +178,6 @@ w_Acte3 = yy_Acte3 = z_Acte3 = w_Sumi3 = yy_Sumi3 = z_Sumi3 = array(dim=c(180,4)
 #############################
 ## 
 
-##Species are different in each location 
-PHI_B_mut = 0.85 ## probability of bites in bed
-PHI_I_mut = 0.90 ## probability of bites indoors
-
-PHI_B_boa = 0.8 ## probability of bites in bed
-PHI_I_boa = 0.86 ## probability of bites indoors
 
 # return(list(mean_prediction,
 #             feed2,

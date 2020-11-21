@@ -48,7 +48,7 @@ IRS_cleaner_f_base = function(data1,k0){
 ######################
 #k0 = 0.699 ##the prob of feeding in absence of interventions
 
-act_dat = read.csv("C:/Users/esherrar/Documents/Mercy Opiyo/METHODOLOGY IRSSOC V2 25082020/Residual_efficacy_krijn_mercy/data_summaryActellic.csv",header=TRUE)
+act_dat = read.csv("data/data_summaryActellic.csv",header=TRUE)
 act_dat$rep_of_studies = ifelse(act_dat$Study == "Agossa2014", 1,
                                 ifelse(act_dat$Study == "Tchicaya2014", 2,
                                        ifelse(act_dat$Study == "Rowland2013", 3,
@@ -75,7 +75,7 @@ act_dat3$timedays = act_dat3$time*30
 ######################
 
 
-sum_dat = read.csv("C:/Users/esherrar/Documents/Mercy Opiyo/METHODOLOGY IRSSOC V2 25082020/Residual_efficacy_krijn_mercy/data_summarySumishield.csv",header=TRUE)
+sum_dat = read.csv("data/data_summarySumishield.csv",header=TRUE)
 dim(sum_dat)
 unique(sum_dat$Study)
 sum_dat$rep_of_studies = ifelse(sum_dat$Study == "UNPUBLISHED_Data_Corbel", 1,
@@ -102,7 +102,7 @@ sum_dat2$timedays = sum_dat2$Months_since_IRS*30
 ############################
 
 ## Modelling the impact 
-stan_Acte <- stan(file="C:\\Users\\esherrar\\Documents\\Mercy Opiyo\\METHODOLOGY IRSSOC V2 25082020\\Residual_efficacy_krijn_mercy\\probability_estimates_lq and kq_random_effect_mean.stan", 
+stan_Acte <- stan(file="probability_estimates_lq and kq_random_effect_mean.stan", 
                   data=act_dattest_base, 
                   warmup=1000,
                   control = list(adapt_delta = 0.8,
@@ -111,7 +111,7 @@ stan_Acte <- stan(file="C:\\Users\\esherrar\\Documents\\Mercy Opiyo\\METHODOLOGY
 
 
 ## Modelling the impact 
-stan_Sumi <- stan(file="C:\\Users\\esherrar\\Documents\\Mercy Opiyo\\METHODOLOGY IRSSOC V2 25082020\\Residual_efficacy_krijn_mercy\\probability_estimates_lq and kq_random_effect_mean.stan", 
+stan_Sumi <- stan(file="probability_estimates_lq and kq_random_effect_mean.stan", 
                   data=sum_dattest_base, 
                   warmup=1000,
                   control = list(adapt_delta = 0.8,
@@ -153,12 +153,56 @@ mean_valsdet_Sumi  = 1 / (1 + exp(-mean(base_Sumi$omega1) - mean(base_Sumi$alpha
 mean_valsdet_SumiU = 1 / (1 + exp(-quantile(base_Sumi$omega1,0.99) - quantile(base_Sumi$alpha2,0.99)*time))
 mean_valsdet_SumiL = 1 / (1 + exp(-quantile(base_Sumi$omega1,0.01) - quantile(base_Sumi$alpha2,0.01)*time))
 
+store_data = data.frame(time,
+                        mean_valssp_Acte,
+                        mean_valssp_ActeL,
+                        mean_valssp_ActeU,
+                        mean_valsfp_Acte,
+                        mean_valsfp_ActeL,
+                        mean_valsfp_ActeU,
+                        mean_valsdet_Acte,
+                        mean_valsdet_ActeL,
+                        mean_valsdet_ActeU,
+                        mean_valssp_Sumi,
+                        mean_valssp_SumiL,
+                        mean_valssp_SumiU,
+                        mean_valsfp_Sumi,
+                        mean_valsfp_SumiL,
+                        mean_valsfp_SumiU,
+                        mean_valsdet_Sumi,
+                        mean_valsdet_SumiL,
+                        mean_valsdet_SumiU)
+
+write.csv(store_data,"Analysis_1_spray_model_data.csv")
+
 ####################################
 ##
 ## Panel 1 shows the mortality estimates from experimental huts and the
 ## overlaid cone bioassay residual efficacy measured within Mozambique
 par(mfrow = c(2,3)) ## creates a 4 panel figure
 #####################################
+DAT1 = read.csv("data/Analysis_1_spray_model_data.csv",header=TRUE)
+
+
+time = DAT1$time
+mean_valssp_Acte = DAT1$mean_valssp_Acte
+mean_valssp_ActeL = DAT1$mean_valssp_ActeL
+mean_valssp_ActeU = DAT1$mean_valssp_ActeU
+mean_valsfp_Acte = DAT1$mean_valsfp_Acte
+mean_valsfp_ActeL = DAT1$mean_valsfp_ActeL
+mean_valsfp_ActeU = DAT1$mean_valsfp_ActeU
+mean_valsdet_Acte = DAT1$mean_valsdet_Acte
+mean_valsdet_ActeL = DAT1$mean_valsdet_ActeL
+mean_valsdet_ActeU = DAT1$mean_valsdet_ActeU
+mean_valssp_Sumi = DAT1$mean_valssp_Sumi
+mean_valssp_SumiL = DAT1$mean_valssp_SumiL
+mean_valssp_SumiU = DAT1$mean_valssp_SumiU
+mean_valsfp_Sumi = DAT1$mean_valsfp_Sumi
+mean_valsfp_SumiL = DAT1$mean_valsfp_SumiL
+mean_valsfp_SumiU = DAT1$mean_valsfp_SumiU
+mean_valsdet_Sumi = DAT1$mean_valsdet_Sumi
+mean_valsdet_SumiL = DAT1$mean_valsdet_SumiL
+mean_valsdet_SumiU = DAT1$mean_valsdet_SumiU
 
 DEAD_Acte =act_dattest_base$d_t /act_dattest_base$n_t
 FED_Acte = (act_dattest_base$fed_t/act_dattest_base$n_t)
@@ -234,14 +278,14 @@ plots_fn = function(TESTER,
                        eff = rep(1,N_data))##[the number of reps for each group in your data]
   
   
-  stan_model_mud <- stan(file="C:\\Users\\esherrar\\Documents\\Rprojects\\IRS_modification_MOpiyo\\logistic_model_kp.stan", 
+  stan_model_mud <- stan(file="logistic_model_kp.stan", 
                      data=data_list_mud, 
                      warmup=500,
                      control = list(adapt_delta = 0.9,
                                     max_treedepth = 20),
                      iter=1000, chains=4)
   
-  stan_model_cem <- stan(file="C:\\Users\\esherrar\\Documents\\Rprojects\\IRS_modification_MOpiyo\\logistic_model_kp.stan", 
+  stan_model_cem <- stan(file="logistic_model_kp.stan", 
                          data=data_list_cem, 
                          warmup=500,
                          control = list(adapt_delta = 0.9,
@@ -373,7 +417,7 @@ plots_fn = function(TESTER,
 ## Cone bioassay data from the field 
 ##
 #####################################################################
-cone_bios = read.csv("C:\\Users\\esherrar\\Documents\\Mercy Opiyo\\\\Cone_assay_data_v1.csv",header=TRUE)
+cone_bios = read.csv("data\\Cone_assay_data_v1.csv",header=TRUE)
 
 Con_bio_Acte_d_t_mud = 
   Con_bio_Acte_n_t_mud = 

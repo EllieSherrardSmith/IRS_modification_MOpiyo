@@ -24,8 +24,8 @@ w_Acte = yy_Acte = z_Acte = w_Sumi = yy_Sumi = z_Sumi = array(dim=c(180,4))
 PHI_B_mut = 0.85 ## probability of bites in bed
 PHI_I_mut = 0.90 ## probability of bites indoors
 
-PHI_B_boa = 0.8 ## probability of bites in bed
-PHI_I_boa = 0.86 ## probability of bites indoors
+PHI_B_boa = 0.85 ## probability of bites in bed
+PHI_I_boa = 0.9 ## probability of bites indoors
 
 # return(list(mean_prediction,
 #             feed2,
@@ -132,7 +132,7 @@ true_cover_irs_Sumi = c(0.95*prop_mod_Sumi[1],
 irs_cov_no_loss_Sumi = rep(0.97,30*6)
 irs_cov_Sumi = rep(true_cover_irs_Sumi,each=30)
 
-plot(irs_cov_no_loss_Acte ~ time[1:180],ylab = "Community IRS cover (%)",
+plot(irs_cov_no_loss_Acte[1:180] ~ time[1:180],ylab = "Community IRS cover (%)",
      ylim=c(0,1),col="black",pch="",
      main = "",cex.main=1.2,xlim=c(1,200),xaxt="n",
      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
@@ -276,8 +276,8 @@ for(i in 1:4){
 
 
 ## Actually we want to look at the comparison so:
-plot(lambda1A[,1] ~ time[1:180],ylim=c(0,2.5),pch="",
-     ylab = "Entomological innoculation rate",
+plot(lambda1A[1:180,1] ~ time[1:180],ylim=c(0,2.5),pch="",
+     ylab = "Mosquito bites received per person per day",
      col="black",
      main = "",cex.main=1.2,xlim=c(1,180),xaxt="n",
      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
@@ -285,19 +285,19 @@ axis(2,las=2,at=seq(0,2.5,0.5),cex.lab=1.4,cex.axis=1.4)
 axis(1,at=seq(0,180,30),labels=seq(0,6,1),cex.lab=1.4,cex.axis=1.4)
 
 for(i in 4){
-  lines(lambda1A[,i] ~ time[1:180],col="darkblue",lty=1,lwd=2)
-  lines(lambda2A[,i] ~ time[1:180],col="darkblue",lty=2,lwd=2)
+  lines(lambda1A[1:180,i] ~ time[1:180],col="darkblue",lty=1,lwd=2)
+  lines(lambda2A[1:180,i] ~ time[1:180],col="darkblue",lty=2,lwd=2)
   
-  lines(lambda1S[,i] ~ time[1:180],col="aquamarine3",lty=1,lwd=2)
-  lines(lambda2S[,i] ~ time[1:180],col="aquamarine3",lty=2,lwd=2)
+  lines(lambda1S[1:180,i] ~ time[1:180],col="aquamarine3",lty=1,lwd=2)
+  lines(lambda2S[1:180,i] ~ time[1:180],col="aquamarine3",lty=2,lwd=2)
   
 }
 for(i in 3){
-  lines(lambda1A[,i] ~ time[1:180],col="darkblue",lty=1,lwd=1)
-  lines(lambda2A[,i] ~ time[1:180],col="darkblue",lty=2,lwd=1)
+  lines(lambda1A[1:180,i] ~ time[1:180],col="darkblue",lty=1,lwd=1)
+  lines(lambda2A[1:180,i] ~ time[1:180],col="darkblue",lty=2,lwd=1)
   
-  lines(lambda1S[,i] ~ time[1:180],col="aquamarine3",lty=1,lwd=1)
-  lines(lambda2S[,i] ~ time[1:180],col="aquamarine3",lty=2,lwd=1)
+  lines(lambda1S[1:180,i] ~ time[1:180],col="aquamarine3",lty=1,lwd=1)
+  lines(lambda2S[1:180,i] ~ time[1:180],col="aquamarine3",lty=2,lwd=1)
   
 }
 
@@ -306,7 +306,9 @@ for(i in 3){
 # for(i in 1:4) lines(Q1[,i]~time[1:180],col=colsd[i],lwd=2,lty=2)
 
 legend("topleft",legend = c("Matutuine (assuming no ITN)","Boane (assuming no ITN)",
-                            "Matutuine (ITN use 52%)","Boane (ITN use 85%)","IRS no household modification", "IRS with household modification"),
+                            "Matutuine (ITN use 52%)","Boane (ITN use 85%)",
+                            "IRS no household modification",
+                            "IRS with household modification"),
        col = c("darkblue","aquamarine3","darkblue","aquamarine3","black","black"),lwd = c(1,1,2,2,2,2), lty=c(1,1,1,1,1,2),cex=1.2,bty="n")
 
 ## Additional infectious bites per person per year 
@@ -329,12 +331,16 @@ Estimated_propn_increase_EIR[,1] = (lambda2A[,4] - lambda1A[,4])/lambda2A[,4]
 Estimated_propn_increase_EIR[,2] = (lambda2S[,4] - lambda1S[,4])/lambda2S[,4]
 
 
-plot(Estimated_propn_increase_EIR[,1] ~ time[1:180],ylim=c(0,1),pch="",
-     ylab = "Change in EIR with lost IRS cover",
+plot(Estimated_propn_increase_EIR[1:180,1] ~ time[1:180],ylim=c(0,1),pch="",
+     ylab = "",
      col="black",
      main = "",cex.main=1.2,xlim=c(1,180),xaxt="n",
      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
-axis(2,las=2,at=seq(0,1,0.2),cex.lab=1.4,cex.axis=1.4)
+mtext(side=2, line =4,
+      "Relative increase in daily bites ")
+mtext(side=2, line =2.7, "due to modifications (%)")
+axis(2,las=2,at=seq(0,1,0.2),label=seq(0,100,20),cex.lab=1.4,cex.axis=1.4)
+
 axis(1,at=seq(0,180,30),labels=seq(0,6,1),cex.lab=1.4,cex.axis=1.4)
 
 colsd = c("darkblue","aquamarine3")
@@ -355,6 +361,13 @@ Estimated_propn_increase_EIR[,2] = (lambda2S[,3] - lambda1S[,3])/lambda2S[,3]
 for(i in 1:2){
   lines(Estimated_propn_increase_EIR[,i] ~ time[1:180],col=colsd[i],lty=1,lwd=1)
 }
+
+mean(Estimated_propn_increase_EIR[1:30,1])
+mean(Estimated_propn_increase_EIR[31:60,1])
+mean(Estimated_propn_increase_EIR[61:92,1])
+mean(Estimated_propn_increase_EIR[93:122,1])
+mean(Estimated_propn_increase_EIR[123:153,1])
+mean(Estimated_propn_increase_EIR[154:180,1])
 
 
 legend("topleft",legend = c("Matutuine (assuming no ITN)","Boane (assuming no ITN)",
@@ -405,8 +418,8 @@ w_Acte3 = yy_Acte3 = z_Acte3 = w_Sumi3 = yy_Sumi3 = z_Sumi3 = array(dim=c(180,4)
 PHI_B_mut = 0.85 ## probability of bites in bed
 PHI_I_mut = 0.90 ## probability of bites indoors
 
-PHI_B_boa = 0.8 ## probability of bites in bed
-PHI_I_boa = 0.86 ## probability of bites indoors
+PHI_B_boa = 0.85 ## probability of bites in bed
+PHI_I_boa = 0.90 ## probability of bites indoors
 
 # return(list(mean_prediction,
 #             feed2,
@@ -816,7 +829,7 @@ for(i in 1:4){
 
 ## Actually we want to look at the comparison so:
 plot(lambda1A[,1] ~ time[1:180],ylim=c(0,2.5),pch="",
-     ylab = "Entomological innoculation rate",
+     ylab = "Mosquito bites received per person per day",
      col="black",
      main = "",cex.main=1.2,xlim=c(1,180),xaxt="n",
      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
@@ -867,14 +880,23 @@ Estimated_propn_increase_EIR = array(dim=c(180,2))
 Estimated_propn_increase_EIR[,1] = (lambda2A[,4] - lambda1A[,4])/lambda2A[,4]
 Estimated_propn_increase_EIR[,2] = (lambda2S[,4] - lambda1S[,4])/lambda2S[,4]
 
+mean(Estimated_propn_increase_EIR[1:30,1])
+mean(Estimated_propn_increase_EIR[31:60,1])
+mean(Estimated_propn_increase_EIR[61:92,1])
+mean(Estimated_propn_increase_EIR[93:122,1])
+mean(Estimated_propn_increase_EIR[123:153,1])
+mean(Estimated_propn_increase_EIR[154:180,1])
 
 plot(Estimated_propn_increase_EIR[,1] ~ time[1:180],ylim=c(0,1),pch="",
-     ylab = "Change in EIR with lost IRS cover",
+     ylab = "",
      col="black",
      main = "",cex.main=1.2,xlim=c(1,180),xaxt="n",
      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
-axis(2,las=2,at=seq(0,1,0.2),cex.lab=1.4,cex.axis=1.4)
+axis(2,las=2,at=seq(0,1,0.2),labels=seq(0,100,20),cex.lab=1.4,cex.axis=1.4)
 axis(1,at=seq(0,180,30),labels=seq(0,6,1),cex.lab=1.4,cex.axis=1.4)
+mtext(side=2, line =4,
+      "Relative increase in daily bites")
+mtext(side=2, line =2.7, "due to spray campaign & modifications (%)")
 
 colsd = c("darkblue","aquamarine3")
 for(i in 1:2){
@@ -916,6 +938,8 @@ text(x = -490, y = 2.70,"(A)")
 text(x = -270, y = 2.70,"(B)")
 text(x = -28, y = 2.70,"(C)")
 
-text(x = -490, y = 1.1,"(D)")
-text(x = -270, y = 1.1,"(E)")
-text(x = -28, y = 1.1,"(F)")
+text(x = -490, y = 1.2,"(D)")
+text(x = -270, y = 1.2,"(E)")
+text(x = -28, y = 1.2,"(F)")
+
+## 1300 width and 750 height
