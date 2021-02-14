@@ -9,7 +9,7 @@
 ## We assume the ratio of houses monitored per start month
 ## reflects the proportion of houses covered by the spray campaign
 ## in that month
-
+par(mfrow=c(2,3))
 ## Houses were tracked from November, December and January (1 in Feb)
 ## 129/(129+88+27+1) is 52.65% of houses in the community have max protection in Nov
 ## 88/(129+88+27+1) is 35.92% of houses max protection Dec (52% - any modifications have 1 mont old protection)
@@ -37,8 +37,8 @@ w_Acte3 = yy_Acte3 = z_Acte3 = w_Sumi3 = yy_Sumi3 = z_Sumi3 = array(dim=c(180,4)
 ## 
 
 ##Species are different in each location 
-PHI_B_mut = 0.85 ## probability of bites in bed
-PHI_I_mut = 0.90 ## probability of bites indoors
+PHI_B_mut = 0.8 ## probability of bites in bed
+PHI_I_mut = 0.86 ## probability of bites indoors
 
 PHI_B_boa = 0.8 ## probability of bites in bed
 PHI_I_boa = 0.86 ## probability of bites indoors

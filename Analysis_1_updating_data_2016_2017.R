@@ -173,7 +173,7 @@ store_data = data.frame(time,
                         mean_valsdet_SumiL,
                         mean_valsdet_SumiU)
 
-write.csv(store_data,"Analysis_1_spray_model_data.csv")
+write.csv(store_data,"Analysis_1_spray_model_data_v2.csv")
 
 ####################################
 ##
@@ -181,7 +181,8 @@ write.csv(store_data,"Analysis_1_spray_model_data.csv")
 ## overlaid cone bioassay residual efficacy measured within Mozambique
 par(mfrow = c(2,3)) ## creates a 4 panel figure
 #####################################
-DAT1 = read.csv("data/Analysis_1_spray_model_data.csv",header=TRUE)
+DAT1 = read.csv("data/Analysis_1_spray_model_data.csv",header=TRUE)##v1 original
+DAT1 = read.csv("data/Analysis_1_spray_model_data_v2.csv",header=TRUE)
 
 
 time = DAT1$time
@@ -333,7 +334,7 @@ plots_fn = function(TESTER,
   lines(mean_prediction_cem ~ time,col = "black",lwd=2,lty=2)
   
   legend("topright",legend = c("Systematic review","Cone bioassay (mud)","Cone bioassay (cement)"),
-         lwd=2,pch=15,col=adegenet::transp(c("aquamarine4","darkred","grey")),
+         lwd=2,pch=15,col=c("aquamarine4",adegenet::transp(c("darkred","grey"))),
          cex=1.4,bty = "n")
   #####################################
   ##
@@ -417,7 +418,48 @@ plots_fn = function(TESTER,
 ## Cone bioassay data from the field 
 ##
 #####################################################################
-cone_bios = read.csv("data\\Cone_assay_data_v1.csv",header=TRUE)
+NEW_DAT = read.csv("data\\raw_data_2016_2017.csv",header=TRUE)
+NEW_DAT$total_exposed = NEW_DAT$exposed_mosquito_1 + NEW_DAT$exposed_mosquito_2 + NEW_DAT$exposed_mosquito_3 + NEW_DAT$exposed_mosquito_4 
+NEW_DAT$total_mortality_24 = NEW_DAT$mortalidade_24h_1 + NEW_DAT$mortalidade_24h_2 + NEW_DAT$mortalidade_24h_3 + NEW_DAT$mortalidade_24h_4
+NEW_DAT$total_mortality_72 = NEW_DAT$mortalidade_72h_1 + NEW_DAT$mortalidade_72h_2 + NEW_DAT$mortalidade_72h_3 + NEW_DAT$mortalidade_72h_4
+head(NEW_DAT)
+
+NEW_DAT2 = data.frame(local = rep("Actellic_2016-2017-location",nrow(NEW_DAT)),
+                      test_date = NEW_DAT$test_date,
+                      month_official = NEW_DAT$Month,
+                      house_type = NEW_DAT$house_type,
+                      participation = NEW_DAT$participation,
+                      mosquito_species = NEW_DAT$mosquito_species,
+                      total_exposed = NEW_DAT$total_exposed,
+                      total_mortality_24 = NEW_DAT$total_mortality_24,
+                      total_mortality_72 = NEW_DAT$total_mortality_72)
+
+
+
+Sumi_new_dat = read.csv("data\\raw_data_2018_2019_SumiShield (1).csv",header=TRUE)
+Sumi_new_dat$total_exposed = Sumi_new_dat$exposed_mosquito_1 + Sumi_new_dat$exposed_mosquito_2 + Sumi_new_dat$exposed_mosquito_3 #+ Sumi_new_dat$exposed_mosquito_4 
+Sumi_new_dat$total_mortality_24 = Sumi_new_dat$mortalidade_24h_1 + Sumi_new_dat$mortalidade_24h_2 + Sumi_new_dat$mortalidade_24h_3# + Sumi_new_dat$mortalidade_24h_4
+Sumi_new_dat$total_mortality_72 = Sumi_new_dat$mortalidade_72h_1 + Sumi_new_dat$mortalidade_72h_2 + Sumi_new_dat$mortalidade_72h_3# + Sumi_new_dat$mortalidade_72h_4
+Sumi_new_dat$date_of_test = Sumi_new_dat$test_date
+head(Sumi_new_dat)
+
+Sumi_new_dat = tidyr::separate(Sumi_new_dat, "test_date", c("Year", "Month", "Day"), sep = "-")
+
+Sumi_new_dat2 = data.frame(local = rep("Sumi_2017-2018-location",nrow(Sumi_new_dat)),
+                      test_date = Sumi_new_dat$date_of_test,
+                      month_official = Sumi_new_dat$month_test,
+                      house_type = Sumi_new_dat$house_type,
+                      participation = Sumi_new_dat$participation,
+                      mosquito_species = Sumi_new_dat$mosquito_species,
+                      total_exposed = Sumi_new_dat$total_exposed,
+                      total_mortality_24 = Sumi_new_dat$total_mortality_24,
+                      total_mortality_72 = Sumi_new_dat$total_mortality_72)
+
+
+cone_bios = read.csv("data\\Cone_assay_data_v1.csv",header=TRUE) ## Original
+
+## Decision is to use the 2016-2017 data for Actellic and then the 2017-2018 for Sumi 72 hours
+cone_bios = rbind(Sumi_new_dat2, NEW_DAT2)
 
 Con_bio_Acte_d_t_mud = 
   Con_bio_Acte_n_t_mud = 
@@ -429,26 +471,26 @@ Con_bio_Acte_d_t_mud =
   Con_bio_Sumi_n_t_cem = numeric(length(unique(cone_bios$month_official)))
 
 for(m in 1:length(unique(cone_bios$month_official))){
-  Con_bio_Acte_d_t_mud[m] =  sum(cone_bios$total_mortality_24[cone_bios$house_type == "mud" & cone_bios$local == "Magude" & cone_bios$month_official == unique(cone_bios$month_official)[m]])
-  Con_bio_Acte_n_t_mud[m] =  sum(cone_bios$total_exposed[cone_bios$house_type == "mud" & cone_bios$local == "Magude" & cone_bios$month_official == unique(cone_bios$month_official)[m]])
-  Con_bio_Sumi_d_t_mud[m] =  sum(cone_bios$total_mortality_24[cone_bios$house_type == "mud" & cone_bios$local == "Palmeira" & cone_bios$month_official == unique(cone_bios$month_official)[m]])
-  Con_bio_Sumi_n_t_mud[m] =  sum(cone_bios$total_exposed[cone_bios$house_type == "mud" & cone_bios$local == "Palmeira" & cone_bios$month_official == unique(cone_bios$month_official)[m]])
+  Con_bio_Acte_d_t_mud[m] =  sum(cone_bios$total_mortality_24[cone_bios$house_type == "Mud" & cone_bios$local == "Actellic_2016-2017-location" & cone_bios$month_official == unique(cone_bios$month_official)[m]])
+  Con_bio_Acte_n_t_mud[m] =  sum(cone_bios$total_exposed[cone_bios$house_type == "Mud" & cone_bios$local == "Actellic_2016-2017-location" & cone_bios$month_official == unique(cone_bios$month_official)[m]])
+  Con_bio_Sumi_d_t_mud[m] =  sum(cone_bios$total_mortality_72[cone_bios$house_type == "Mud" & cone_bios$local == "Sumi_2017-2018-location" & cone_bios$month_official == unique(cone_bios$month_official)[m]])
+  Con_bio_Sumi_n_t_mud[m] =  sum(cone_bios$total_exposed[cone_bios$house_type == "Mud" & cone_bios$local == "Sumi_2017-2018-location" & cone_bios$month_official == unique(cone_bios$month_official)[m]])
   
-  Con_bio_Acte_d_t_cem[m] =  sum(cone_bios$total_mortality_24[cone_bios$house_type == "concrete" & cone_bios$local == "Magude" & cone_bios$month_official == unique(cone_bios$month_official)[m]])
-  Con_bio_Acte_n_t_cem[m] =  sum(cone_bios$total_exposed[cone_bios$house_type == "concrete" & cone_bios$local == "Magude" & cone_bios$month_official == unique(cone_bios$month_official)[m]])
-  Con_bio_Sumi_d_t_cem[m] =  sum(cone_bios$total_mortality_24[cone_bios$house_type == "concrete" & cone_bios$local == "Palmeira" & cone_bios$month_official == unique(cone_bios$month_official)[m]])
-  Con_bio_Sumi_n_t_cem[m] =  sum(cone_bios$total_exposed[cone_bios$house_type == "concrete" & cone_bios$local == "Palmeira" & cone_bios$month_official == unique(cone_bios$month_official)[m]])
+  Con_bio_Acte_d_t_cem[m] =  sum(cone_bios$total_mortality_24[cone_bios$house_type == "Cement" & cone_bios$local == "Actellic_2016-2017-location" & cone_bios$month_official == unique(cone_bios$month_official)[m]])
+  Con_bio_Acte_n_t_cem[m] =  sum(cone_bios$total_exposed[cone_bios$house_type == "Cement" & cone_bios$local == "Actellic_2016-2017-location" & cone_bios$month_official == unique(cone_bios$month_official)[m]])
+  Con_bio_Sumi_d_t_cem[m] =  sum(cone_bios$total_mortality_72[cone_bios$house_type == "Cement" & cone_bios$local == "Sumi_2017-2018-location" & cone_bios$month_official == unique(cone_bios$month_official)[m]])
+  Con_bio_Sumi_n_t_cem[m] =  sum(cone_bios$total_exposed[cone_bios$house_type == "Cement" & cone_bios$local == "Sumi_2017-2018-location" & cone_bios$month_official == unique(cone_bios$month_official)[m]])
 }
 
 
 MAIN_HEADING = "Actellic 300CS cone bioassay mortality"
-time_sequence_Acte = c(1:7)*30
-N_data_Acte = 7
+time_sequence_Acte = c(1:12)*30
+N_data_Acte = 12
 
-time_sequence_Sumi = c(1:9)*30
-N_data_Sumi = 9
-##actellic has 7 months data
-##sumi has 9
+time_sequence_Sumi = c(1:11)*30
+N_data_Sumi = 11
+##actellic has 12 months data
+##sumi has 11
 
 par(mfrow=c(2,3))
 
@@ -468,11 +510,11 @@ actellic_details = plots_fn(TESTER = "ACTELLIC",
                             mean_valsdet_checker4l = mean_valsdet_ActeL,
                             mean_valsdet_checker4 = mean_valsdet_Acte,
                             
-                            Con_bio_d_t_mud = Con_bio_Acte_d_t_mud[1:7],
-                            Con_bio_n_t_mud = Con_bio_Acte_n_t_mud[1:7],
+                            Con_bio_d_t_mud = Con_bio_Acte_d_t_mud[1:12],
+                            Con_bio_n_t_mud = Con_bio_Acte_n_t_mud[1:12],
                             
-                            Con_bio_d_t_cem = Con_bio_Acte_d_t_cem[1:7],
-                            Con_bio_n_t_cem = Con_bio_Acte_n_t_cem[1:7],
+                            Con_bio_d_t_cem = Con_bio_Acte_d_t_cem[1:12],
+                            Con_bio_n_t_cem = Con_bio_Acte_n_t_cem[1:12],
                             
                             time_sequence = time_sequence_Acte,
                             N_data = N_data_Acte)
@@ -493,14 +535,15 @@ sumishield_details = plots_fn(TESTER = "SUMISHIELD",
                               mean_valsdet_checker4l = mean_valsdet_SumiL,
                               mean_valsdet_checker4 = mean_valsdet_Sumi,
                               
-                              Con_bio_d_t_mud = Con_bio_Sumi_d_t_mud,
-                              Con_bio_n_t_mud = Con_bio_Sumi_n_t_mud,
+                              Con_bio_d_t_mud = Con_bio_Sumi_d_t_mud[1:11],
+                              Con_bio_n_t_mud = Con_bio_Sumi_n_t_mud[1:11],
                               
-                              Con_bio_d_t_cem = Con_bio_Sumi_d_t_cem,
-                              Con_bio_n_t_cem = Con_bio_Sumi_n_t_cem,
+                              Con_bio_d_t_cem = Con_bio_Sumi_d_t_cem[1:11],
+                              Con_bio_n_t_cem = Con_bio_Sumi_n_t_cem[1:11],
                               
                               time_sequence = time_sequence_Sumi,
                               N_data = N_data_Sumi)
+
 
 par(xpd=NA,cex = 1.1)
 
@@ -512,8 +555,8 @@ text(x = -1010, y = 1.1,"(D)")
 text(x = -550, y = 1.1,"(E)")
 text(x = -80, y = 1.1,"(F)")
 
-saveRDS(actellic_details,"data/actellic_details.Rdata")
-saveRDS(sumishield_details,"data/sumishield_details.Rdata")
+saveRDS(actellic_details,"data/actellic_details_v2.Rdata")
+saveRDS(sumishield_details,"data/sumishield_details_v2.Rdata")
 ##############################
 ##
 ## 3 Estimated impact of ITNs, from Churcher et al. 2016

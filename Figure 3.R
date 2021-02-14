@@ -2,6 +2,8 @@
 ##
 ## Figure 3
 
+actellic_details = readRDS("data/actellic_details_v2.Rdata")
+sumishield_details = readRDS("data/sumishield_details_v2.Rdata")
 par(mfrow = c(2,3))
 
 
@@ -93,7 +95,7 @@ plot(yy_Acte[,1] ~ time[1:180],ylim=c(0,1),pch="",
      main = "",cex.main=1.2,xlim=c(1,180),xaxt="n",
      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
 axis(2,las=2,at=seq(0,1,0.2),labels=seq(0,1,0.2),cex.lab=1.4,cex.axis=1.4)
-axis(1,at=seq(0,180,30),labels=seq(0,6,1),cex.lab=1.4,cex.axis=1.4)
+axis(1,at=seq(0,150,30)+15,labels = c("Oct","Nov","Dec","Jan","Feb","Mar"),cex.axis = 1.4)
 
 colsd=c("darkred","red","orange","blue")
 for(i in 3){
@@ -111,7 +113,7 @@ plot(w_Acte[,1] ~ time[1:180],ylim=c(0,1),pch="",
      main = "",cex.main=1.2,xlim=c(1,180),xaxt="n",
      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
 axis(2,las=2,at=seq(0,1,0.2),labels=seq(0,1,0.2),cex.lab=1.4,cex.axis=1.4)
-axis(1,at=seq(0,180,30),labels=seq(0,6,1),cex.lab=1.4,cex.axis=1.4)
+axis(1,at=seq(0,150,30)+15,labels = c("Oct","Nov","Dec","Jan","Feb","Mar"),cex.axis = 1.4)
 
 colsd=c("darkred","red","orange","blue")
 for(i in 3){
@@ -139,7 +141,7 @@ plot(z_Acte[,1] ~ time[1:180],ylim=c(0,1),pch="",
      main = "",cex.main=1.2,xlim=c(1,180),xaxt="n",
      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
 axis(2,las=2,at=seq(0,1,0.2),labels=seq(0,1,0.2),cex.lab=1.4,cex.axis=1.4)
-axis(1,at=seq(0,180,30),labels=seq(0,6,1),cex.lab=1.4,cex.axis=1.4)
+axis(1,at=seq(0,150,30)+15,labels = c("Oct","Nov","Dec","Jan","Feb","Mar"),cex.axis = 1.4)
 
 colsd=c("darkred","red","orange","blue")
 for(i in 3){
@@ -343,7 +345,7 @@ plot(yy_Acte[,1] ~ time[1:180],ylim=c(0,1),pch="",
      main = "",cex.main=1.2,xlim=c(1,180),xaxt="n",
      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
 axis(2,las=2,at=seq(0,1,0.2),labels=seq(0,1,0.2),cex.lab=1.4,cex.axis=1.4)
-axis(1,at=seq(0,180,30),labels=seq(0,6,1),cex.lab=1.4,cex.axis=1.4)
+axis(1,at=seq(0,150,30)+15,labels = c("Oct","Nov","Dec","Jan","Feb","Mar"),cex.axis = 1.4)
 
 colsd=c("darkred","red","orange","blue")
 for(i in 3){
@@ -361,7 +363,7 @@ plot(w_Acte[,1] ~ time[1:180],ylim=c(0,1),pch="",
      main = "",cex.main=1.2,xlim=c(1,180),xaxt="n",
      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
 axis(2,las=2,at=seq(0,1,0.2),labels=seq(0,1,0.2),cex.lab=1.4,cex.axis=1.4)
-axis(1,at=seq(0,180,30),labels=seq(0,6,1),cex.lab=1.4,cex.axis=1.4)
+axis(1,at=seq(0,150,30)+15,labels = c("Oct","Nov","Dec","Jan","Feb","Mar"),cex.axis = 1.4)
 
 colsd=c("darkred","red","orange","blue")
 for(i in 3){
@@ -417,7 +419,7 @@ plot(z_Acte[,1] ~ time[1:180],ylim=c(0,1),pch="",
      main = "",cex.main=1.2,xlim=c(1,180),xaxt="n",
      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
 axis(2,las=2,at=seq(0,1,0.2),labels=seq(0,1,0.2),cex.lab=1.4,cex.axis=1.4)
-axis(1,at=seq(0,180,30),labels=seq(0,6,1),cex.lab=1.4,cex.axis=1.4)
+axis(1,at=seq(0,150,30)+15,labels = c("Oct","Nov","Dec","Jan","Feb","Mar"),cex.axis = 1.4)
 
 colsd=c("darkred","red","orange","blue")
 for(i in 3){

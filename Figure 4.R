@@ -108,25 +108,25 @@ for(i in 1:180){
 ## waning usage of IRS with time
 
 modif_months = 1:6
-prop_mod_Acte = 1 - c(13.1,8.8,13.7,12.6,8.6,8.3)/100
-true_cover_irs_Acte = c(0.95*prop_mod_Acte[1],
-                        0.95*prop_mod_Acte[1]*prop_mod_Acte[2],
-                        0.95*prop_mod_Acte[1]*prop_mod_Acte[2]*prop_mod_Acte[3],
-                        0.95*prop_mod_Acte[1]*prop_mod_Acte[2]*prop_mod_Acte[3]*prop_mod_Acte[4],
-                        0.95*prop_mod_Acte[1]*prop_mod_Acte[2]*prop_mod_Acte[3]*prop_mod_Acte[4]*prop_mod_Acte[5],
-                        0.95*prop_mod_Acte[1]*prop_mod_Acte[2]*prop_mod_Acte[3]*prop_mod_Acte[4]*prop_mod_Acte[5]*prop_mod_Acte[6])
+prop_mod_Acte = 1 - c(0,13.1,8.8,13.7,12.6,8.6,8.3)/100
+true_cover_irs_Acte = c(0.96*prop_mod_Acte[1],
+                        0.96*prop_mod_Acte[1]*prop_mod_Acte[2],
+                        0.96*prop_mod_Acte[1]*prop_mod_Acte[2]*prop_mod_Acte[3],
+                        0.96*prop_mod_Acte[1]*prop_mod_Acte[2]*prop_mod_Acte[3]*prop_mod_Acte[4],
+                        0.96*prop_mod_Acte[1]*prop_mod_Acte[2]*prop_mod_Acte[3]*prop_mod_Acte[4]*prop_mod_Acte[5],
+                        0.96*prop_mod_Acte[1]*prop_mod_Acte[2]*prop_mod_Acte[3]*prop_mod_Acte[4]*prop_mod_Acte[5]*prop_mod_Acte[6])
 
 #House coverage: Matutuine district 96 %
 irs_cov_no_loss_Acte = rep(0.96,30*6)
 irs_cov_Acte = rep(true_cover_irs_Acte,each=30)
 
-prop_mod_Sumi = 1 - c(3.5,5,5.3,5.4,5.8,5.8)/100
-true_cover_irs_Sumi = c(0.95*prop_mod_Sumi[1],
-                        0.95*prop_mod_Sumi[1]*prop_mod_Sumi[2],
-                        0.95*prop_mod_Sumi[1]*prop_mod_Sumi[2]*prop_mod_Sumi[3],
-                        0.95*prop_mod_Sumi[1]*prop_mod_Sumi[2]*prop_mod_Sumi[3]*prop_mod_Sumi[4],
-                        0.95*prop_mod_Sumi[1]*prop_mod_Sumi[2]*prop_mod_Sumi[3]*prop_mod_Sumi[4]*prop_mod_Sumi[5],
-                        0.95*prop_mod_Sumi[1]*prop_mod_Sumi[2]*prop_mod_Sumi[3]*prop_mod_Sumi[4]*prop_mod_Sumi[5]*prop_mod_Sumi[6])
+prop_mod_Sumi = 1 - c(0,3.5,5,5.3,5.4,5.8,5.8)/100
+true_cover_irs_Sumi = c(0.97*prop_mod_Sumi[1],
+                        0.97*prop_mod_Sumi[1]*prop_mod_Sumi[2],
+                        0.97*prop_mod_Sumi[1]*prop_mod_Sumi[2]*prop_mod_Sumi[3],
+                        0.97*prop_mod_Sumi[1]*prop_mod_Sumi[2]*prop_mod_Sumi[3]*prop_mod_Sumi[4],
+                        0.97*prop_mod_Sumi[1]*prop_mod_Sumi[2]*prop_mod_Sumi[3]*prop_mod_Sumi[4]*prop_mod_Sumi[5],
+                        0.97*prop_mod_Sumi[1]*prop_mod_Sumi[2]*prop_mod_Sumi[3]*prop_mod_Sumi[4]*prop_mod_Sumi[5]*prop_mod_Sumi[6])
 
 #House coverage: Boane (sumi) district 97 %, Manhica district (Palmeira) 98 % 
 irs_cov_no_loss_Sumi = rep(0.97,30*6)
@@ -137,22 +137,23 @@ plot(irs_cov_no_loss_Acte[1:180] ~ time[1:180],ylab = "Community IRS cover (%)",
      main = "",cex.main=1.2,xlim=c(1,200),xaxt="n",
      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
 axis(2,las=2,at=seq(0,1,0.2),labels=seq(0,100,20),cex.lab=1.4,cex.axis=1.4)
-axis(1,at=seq(0,180,30),labels = seq(0,6,1),cex.axis = 1.4)
+axis(1,at=seq(0,180,30)+15,labels = c("Oct","Nov","Dec","Jan","Feb","Mar","Apr"),cex.axis = 1.4)
 
 
-lines(irs_cov_no_loss_Acte ~ time[1:180],lty=2,lwd=2,col = "darkblue")
-lines(irs_cov_Acte ~ time[1:180],lty=4,lwd=2,col = "darkblue")
+lines(irs_cov_no_loss_Acte ~ time[1:180],lty=1,lwd=2,col = "darkblue") ## IRS only no loss 
+lines(irs_cov_Acte ~ time[1:180],lty=3,lwd=2,col = "darkblue") ## IRS with loss
 
-lines(irs_cov_no_loss_Sumi ~ c(time[1:180]+1),lty=2,lwd=2,col = "aquamarine3")
-lines(irs_cov_Sumi ~ time[1:180],lty=4,lwd=2,col = "aquamarine3")
+lines(irs_cov_no_loss_Sumi ~ c(time[1:180]+1),lty=1,lwd=2,col = "aquamarine3")
+lines(irs_cov_Sumi ~ time[1:180],lty=3,lwd=2,col = "aquamarine3")
 
-legend("bottomleft",legend = c("Mututuine","Boane","IRS cover, no loss", "IRS cover, observed loss"),
-       col = c("darkblue","aquamarine3","black","black"),lwd = 2, lty=c(1,1,2,4),cex=1.2,bty="n")
+legend("bottomleft",legend = c("Matutuine","Boane","IRS cover, no loss", "IRS cover, observed loss"),
+       col = c("darkblue","aquamarine3","black","black"),lwd = 2, lty=c(NA,NA,1,3),
+       pch=c(15,15,NA,NA),cex=1.2,bty="n")
 
 cov1A = cov1S = cov2A = cov2S = array(dim=c(180,4))
 
 itn_cov_Acte = 0.52
-itn_cov_Sumi = 0.85
+itn_cov_Sumi = 0.73
 ## Here we are creating a matrix
 ## with the coverage or use of nets waning with time
 ## and the coverage of IRS either staying fixed, or also waning 
@@ -282,22 +283,22 @@ plot(lambda1A[1:180,1] ~ time[1:180],ylim=c(0,2.5),pch="",
      main = "",cex.main=1.2,xlim=c(1,180),xaxt="n",
      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
 axis(2,las=2,at=seq(0,2.5,0.5),cex.lab=1.4,cex.axis=1.4)
-axis(1,at=seq(0,180,30),labels=seq(0,6,1),cex.lab=1.4,cex.axis=1.4)
+axis(1,at=seq(0,180,30)+15,labels = c("Oct","Nov","Dec","Jan","Feb","Mar","Apr"),cex.axis = 1.4)
 
 for(i in 4){
-  lines(lambda1A[1:180,i] ~ time[1:180],col="darkblue",lty=1,lwd=2)
-  lines(lambda2A[1:180,i] ~ time[1:180],col="darkblue",lty=2,lwd=2)
+  lines(lambda1A[1:180,i] ~ time[1:180],col="darkblue",lty=2,lwd=2) ## Nets and IRS no loss
+  lines(lambda2A[1:180,i] ~ time[1:180],col="darkblue",lty=4,lwd=2) ## Nets and IRS with loss
   
-  lines(lambda1S[1:180,i] ~ time[1:180],col="aquamarine3",lty=1,lwd=2)
-  lines(lambda2S[1:180,i] ~ time[1:180],col="aquamarine3",lty=2,lwd=2)
+  lines(lambda1S[1:180,i] ~ time[1:180],col="aquamarine3",lty=2,lwd=2)
+  lines(lambda2S[1:180,i] ~ time[1:180],col="aquamarine3",lty=4,lwd=2)
   
 }
 for(i in 3){
-  lines(lambda1A[1:180,i] ~ time[1:180],col="darkblue",lty=1,lwd=1)
-  lines(lambda2A[1:180,i] ~ time[1:180],col="darkblue",lty=2,lwd=1)
+  lines(lambda1A[1:180,i] ~ time[1:180],col="darkblue",lty=1,lwd=1) ## IRS only no loss
+  lines(lambda2A[1:180,i] ~ time[1:180],col="darkblue",lty=3,lwd=1) ## IRS only with loss
   
   lines(lambda1S[1:180,i] ~ time[1:180],col="aquamarine3",lty=1,lwd=1)
-  lines(lambda2S[1:180,i] ~ time[1:180],col="aquamarine3",lty=2,lwd=1)
+  lines(lambda2S[1:180,i] ~ time[1:180],col="aquamarine3",lty=3,lwd=1)
   
 }
 
@@ -305,11 +306,15 @@ for(i in 3){
 # for(i in 1:4) lines(fR1[,i]~time[1:180],col=colsd[i],lwd=2)
 # for(i in 1:4) lines(Q1[,i]~time[1:180],col=colsd[i],lwd=2,lty=2)
 
-legend("topleft",legend = c("Matutuine (assuming no ITN)","Boane (assuming no ITN)",
-                            "Matutuine (ITN use 52%)","Boane (ITN use 85%)",
-                            "IRS no household modification",
-                            "IRS with household modification"),
-       col = c("darkblue","aquamarine3","darkblue","aquamarine3","black","black"),lwd = c(1,1,2,2,2,2), lty=c(1,1,1,1,1,2),cex=1.2,bty="n")
+legend("topleft",legend = c("Matutuine (ITN use 52%)",
+                            "Boane (ITN use 73%)",
+                            "IRS no modification, no ITN",
+                            "IRS with household modification, no ITN",
+                            "IRS no modification, with ITN use",
+                            "IRS with household modification, with ITN use"),
+       col = c("darkblue","aquamarine3","black","black","black","black"),
+       lwd = 1,pch=c(15,15,NA,NA,NA,NA), 
+       lty=c(NA,NA,1,3,2,4),cex=1.2,bty="n")
 
 ## Additional infectious bites per person per year 
 Estimated_added_EIR = array(dim=c(180,2))
@@ -330,6 +335,14 @@ Estimated_propn_increase_EIR = array(dim=c(180,2))
 Estimated_propn_increase_EIR[,1] = (lambda2A[,4] - lambda1A[,4])/lambda2A[,4]
 Estimated_propn_increase_EIR[,2] = (lambda2S[,4] - lambda1S[,4])/lambda2S[,4]
 
+c(sum(Estimated_propn_increase_EIR[1:30,1])/30,sum(Estimated_propn_increase_EIR[31:60,1])/30,
+  sum(Estimated_propn_increase_EIR[61:90,1])/30,sum(Estimated_propn_increase_EIR[91:120,1])/30,
+  sum(Estimated_propn_increase_EIR[121:150,1])/30,sum(Estimated_propn_increase_EIR[151:180,1])/30)
+
+c(sum(Estimated_propn_increase_EIR[1:30,2])/30,sum(Estimated_propn_increase_EIR[31:60,2])/30,
+  sum(Estimated_propn_increase_EIR[61:90,2])/30,sum(Estimated_propn_increase_EIR[91:120,2])/30,
+  sum(Estimated_propn_increase_EIR[121:150,2])/30,sum(Estimated_propn_increase_EIR[151:180,2])/30)
+
 
 plot(Estimated_propn_increase_EIR[1:180,1] ~ time[1:180],ylim=c(0,1),pch="",
      ylab = "",
@@ -341,7 +354,7 @@ mtext(side=2, line =4,
 mtext(side=2, line =2.7, "due to modifications (%)")
 axis(2,las=2,at=seq(0,1,0.2),label=seq(0,100,20),cex.lab=1.4,cex.axis=1.4)
 
-axis(1,at=seq(0,180,30),labels=seq(0,6,1),cex.lab=1.4,cex.axis=1.4)
+axis(1,at=seq(0,180,30)+15,labels = c("Oct","Nov","Dec","Jan","Feb","Mar","Apr"),cex.axis = 1.4)
 
 colsd = c("darkblue","aquamarine3")
 for(i in 1:2){
@@ -371,7 +384,7 @@ mean(Estimated_propn_increase_EIR[154:180,1])
 
 
 legend("topleft",legend = c("Matutuine (assuming no ITN)","Boane (assuming no ITN)",
-                            "Matutuine (ITN use 52%)","Boane (ITN use 85%)"),
+                            "Matutuine (ITN use 52%)","Boane (ITN use 73%)"),
        col = c("darkblue","aquamarine3","darkblue","aquamarine3"),lwd = c(2,2,1,1), lty=c(1,1,2,2),cex=1.2,bty="n")
 
 
@@ -627,7 +640,7 @@ z_Sumi[,2:4] =
 ## as well as altered cover over time from 3 month time line of campaign
 
 modif_months = 1:6
-prop_mod_Acte = 1 - c(13.1,8.8,13.7,12.6,8.6,8.3)/100
+prop_mod_Acte = 1 - c(0,13.1,8.8,13.7,12.6,8.6,8.3)/100
 true_cover_irs_Acte = c(prop_mod_Acte[1]*129/(129+88+27+1),
                         prop_mod_Acte[1]*(129+88)/(129+88+27+1)*prop_mod_Acte[2],
                         prop_mod_Acte[1]*(129+88+27)/(129+88+27+1)*prop_mod_Acte[2]*prop_mod_Acte[3],
@@ -639,7 +652,7 @@ true_cover_irs_Acte = c(prop_mod_Acte[1]*129/(129+88+27+1),
 irs_cov_no_loss_Acte = rep(0.96,30*6)
 irs_cov_Acte = rep(true_cover_irs_Acte,each=30)
 
-prop_mod_Sumi = 1 - c(3.5,5,5.3,5.4,5.8,5.8)/100
+prop_mod_Sumi = 1 - c(0,3.5,5,5.3,5.4,5.8,5.8)/100
 true_cover_irs_Sumi = c(113/(113+153+76+2)*prop_mod_Sumi[1],
                         (113+153)/(113+153+76+2)*prop_mod_Sumi[1]*prop_mod_Sumi[2],
                         (113+153+76)/(113+153+76+2)*prop_mod_Sumi[1]*prop_mod_Sumi[2]*prop_mod_Sumi[3],
@@ -656,22 +669,19 @@ plot(irs_cov_no_loss_Acte ~ time[1:180],ylab = "Community IRS cover (%)",
      main = "",cex.main=1.2,xlim=c(1,200),xaxt="n",
      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
 axis(2,las=2,at=seq(0,1,0.2),labels=seq(0,100,20),cex.lab=1.4,cex.axis=1.4)
-axis(1,at=seq(0,180,30),labels = seq(0,6,1),cex.axis = 1.4)
+axis(1,at=seq(0,180,30)+15,labels = c("Oct","Nov","Dec","Jan","Feb","Mar","Apr"),cex.axis = 1.4)
 
 
-lines(irs_cov_no_loss_Acte ~ time[1:180],lty=2,lwd=2,col = "darkblue")
-lines(irs_cov_Acte ~ time[1:180],lty=4,lwd=2,col = "darkblue")
+lines(irs_cov_no_loss_Acte ~ time[1:180],lty=1,lwd=2,col = "darkblue")
+lines(irs_cov_Acte ~ time[1:180],lty=3,lwd=2,col = "darkblue")
 
-lines(irs_cov_no_loss_Sumi ~ c(time[1:180]+1),lty=2,lwd=2,col = "aquamarine3")
-lines(irs_cov_Sumi ~ time[1:180],lty=4,lwd=2,col = "aquamarine3")
-
-# legend("bottomleft",legend = c("Mututuine","Boane","IRS cover, no loss", "IRS cover, observed loss"),
-#        col = c("darkblue","aquamarine3","black","black"),lwd = 2, lty=c(1,1,2,4),cex=1.2,bty="n")
+lines(irs_cov_no_loss_Sumi ~ c(time[1:180]+1),lty=1,lwd=2,col = "aquamarine3")
+lines(irs_cov_Sumi ~ time[1:180],lty=3,lwd=2,col = "aquamarine3")
 
 cov1A = cov1S = cov2A = cov2S = array(dim=c(180,4))
 
 itn_cov_Acte = 0.52
-itn_cov_Sumi = 0.85
+itn_cov_Sumi = 0.73
 ## Here we are creating a matrix
 ## with the coverage or use of nets waning with time
 ## and the coverage of IRS either staying fixed, or also waning 
@@ -834,22 +844,22 @@ plot(lambda1A[,1] ~ time[1:180],ylim=c(0,2.5),pch="",
      main = "",cex.main=1.2,xlim=c(1,180),xaxt="n",
      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
 axis(2,las=2,at=seq(0,2.5,0.5),cex.lab=1.4,cex.axis=1.4)
-axis(1,at=seq(0,180,30),labels=seq(0,6,1),cex.lab=1.4,cex.axis=1.4)
+axis(1,at=seq(0,180,30)+15,labels = c("Oct","Nov","Dec","Jan","Feb","Mar","Apr"),cex.axis = 1.4)
 
 for(i in 4){
-  lines(lambda1A[,i] ~ time[1:180],col="darkblue",lty=1,lwd=2)
-  lines(lambda2A[,i] ~ time[1:180],col="darkblue",lty=2,lwd=2)
+  lines(lambda1A[,i] ~ time[1:180],col="darkblue",lty=2,lwd=2)
+  lines(lambda2A[,i] ~ time[1:180],col="darkblue",lty=4,lwd=2)
   
-  lines(lambda1S[,i] ~ time[1:180],col="aquamarine3",lty=1,lwd=2)
-  lines(lambda2S[,i] ~ time[1:180],col="aquamarine3",lty=2,lwd=2)
+  lines(lambda1S[,i] ~ time[1:180],col="aquamarine3",lty=2,lwd=2)
+  lines(lambda2S[,i] ~ time[1:180],col="aquamarine3",lty=4,lwd=2)
   
 }
 for(i in 3){
   lines(lambda1A[,i] ~ time[1:180],col="darkblue",lty=1,lwd=1)
-  lines(lambda2A[,i] ~ time[1:180],col="darkblue",lty=2,lwd=1)
+  lines(lambda2A[,i] ~ time[1:180],col="darkblue",lty=3,lwd=1)
   
   lines(lambda1S[,i] ~ time[1:180],col="aquamarine3",lty=1,lwd=1)
-  lines(lambda2S[,i] ~ time[1:180],col="aquamarine3",lty=2,lwd=1)
+  lines(lambda2S[,i] ~ time[1:180],col="aquamarine3",lty=3,lwd=1)
   
 }
 
@@ -858,7 +868,7 @@ for(i in 3){
 # for(i in 1:4) lines(Q1[,i]~time[1:180],col=colsd[i],lwd=2,lty=2)
 # 
 # legend("topleft",legend = c("Matutuine (assuming no ITN)","Boane (assuming no ITN)",
-#                             "Matutuine (ITN use 52%)","Boane (ITN use 85%)","IRS no household modification", "IRS with household modification"),
+#                             "Matutuine (ITN use 52%)","Boane (ITN use 73%)","IRS no household modification", "IRS with household modification"),
 #        col = c("darkblue","aquamarine3","darkblue","aquamarine3","black","black"),lwd = c(1,1,2,2,2,2), lty=c(1,1,1,1,1,2),cex=1.2,bty="n")
 
 ## Additional infectious bites per person per year 
@@ -893,7 +903,7 @@ plot(Estimated_propn_increase_EIR[,1] ~ time[1:180],ylim=c(0,1),pch="",
      main = "",cex.main=1.2,xlim=c(1,180),xaxt="n",
      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
 axis(2,las=2,at=seq(0,1,0.2),labels=seq(0,100,20),cex.lab=1.4,cex.axis=1.4)
-axis(1,at=seq(0,180,30),labels=seq(0,6,1),cex.lab=1.4,cex.axis=1.4)
+axis(1,at=seq(0,180,30)+15,labels = c("Oct","Nov","Dec","Jan","Feb","Mar","Apr"),cex.axis = 1.4)
 mtext(side=2, line =4,
       "Relative increase in daily bites")
 mtext(side=2, line =2.7, "due to spray campaign & modifications (%)")
@@ -919,7 +929,7 @@ for(i in 1:2){
 
 # 
 # legend("topleft",legend = c("Matutuine (assuming no ITN)","Boane (assuming no ITN)",
-#                             "Matutuine (ITN use 52%)","Boane (ITN use 85%)"),
+#                             "Matutuine (ITN use 52%)","Boane (ITN use 73%)"),
 #        col = c("darkblue","aquamarine3","darkblue","aquamarine3"),lwd = c(2,2,1,1), lty=c(1,1,2,2),cex=1.2,bty="n")
 
 
@@ -943,3 +953,4 @@ text(x = -270, y = 1.2,"(E)")
 text(x = -28, y = 1.2,"(F)")
 
 ## 1300 width and 750 height
+
