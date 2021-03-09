@@ -249,6 +249,9 @@ plots_fn = function(TESTER,
                     Con_bio_d_t_cem,
                     Con_bio_n_t_cem,
                     
+                    PERCENT_MUD,
+                    PERCENT_CEM,
+                    
                     time_sequence,
                     N_data){
   
@@ -379,8 +382,8 @@ plots_fn = function(TESTER,
   ##  depends on how similar mortality curves are!
   ###################################
   
-  percent_mud = 0.5
-  percent_cem = 0.5
+  percent_mud = PERCENT_MUD
+  percent_cem = PERCENT_CEM
   
   mean_prediction = (mean_prediction_mud*percent_mud) + (mean_prediction_cem*percent_cem)
   
@@ -516,6 +519,9 @@ actellic_details = plots_fn(TESTER = "ACTELLIC",
                             Con_bio_d_t_cem = Con_bio_Acte_d_t_cem[1:12],
                             Con_bio_n_t_cem = Con_bio_Acte_n_t_cem[1:12],
                             
+                            PERCENT_MUD = 0.40,
+                            PERCENT_CEM = 0.60,
+                            
                             time_sequence = time_sequence_Acte,
                             N_data = N_data_Acte)
 
@@ -540,6 +546,9 @@ sumishield_details = plots_fn(TESTER = "SUMISHIELD",
                               
                               Con_bio_d_t_cem = Con_bio_Sumi_d_t_cem[1:11],
                               Con_bio_n_t_cem = Con_bio_Sumi_n_t_cem[1:11],
+                              
+                              PERCENT_MUD = 0.97,
+                              PERCENT_CEM = 0.03,
                               
                               time_sequence = time_sequence_Sumi,
                               N_data = N_data_Sumi)
@@ -686,6 +695,7 @@ ERG_r_ITN0;ERG_d_ITN0;itn_half_life
 
 itn_loss = log(2)/itn_half_life
 ITN_interval=3*365
+time=1:365
 ## decay in efficacy of net over time
 ## **** this is wrong need to work this out
 ITN_decay = exp(-(time/ITN_interval)*itn_loss)

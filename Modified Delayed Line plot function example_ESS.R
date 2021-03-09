@@ -92,3 +92,4 @@ legend("topleft",legend = c("Proportion of all houses modified",
                             "Campaign begins Dec 2018 (Village 2)",
                             "Campaign begins Jan 2019 (Village 3)"),bty="n",
        col=c(adegenet::transp("aquamarine3",0.4),"blue","orange","purple"),pch=15,cex=1.4)
+
