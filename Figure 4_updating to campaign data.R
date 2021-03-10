@@ -1,321 +1,46 @@
----
-title: "Supplement file: R code"
-author: "Ellie Sherrard-Smith & Mercy Opiyo"
-date: "08/03/2021"
-output: pdf_document
----
-
-
-## Analysis 1
-
-The impact of any indoor residual spraying (IRS) product will be time-dependent because the active ingredient wanes after application. A systematic review of experimental hut trial data (1) has previously assessed the entomological impacts of Actellic 300CS and SumiShield, the two IRS products used here. 
-
-Results from the systematic review (1) for either Actellic 300®CS or SumiShield data are modified given the cone bioassay data reported in our study, weighted for the proportion of houses that are constructed with either mud or cement, to estimate the probable outcomes in Matutuine and Boane districts of southern Mozambique (Actellic 300®CS (main manuscript Fig. 5C & 5D), and SumiShield® (main manuscript Fig. 5E & 5F)) 
-
-
-A bayesian logistic growth model is fitted to the mortality, successful feeding and deterrence data observed in a systematic review. We provide the RStan model code below (full_model.stan). We then fit the same function to the cone bioassay mortality data measured in our study (log_model.stan) when sampling either mud or cement surfaces. 
-
-```{r setup, include = TRUE,  eval=FALSE}
-
-
-## This is the model from the systematic review fitting to 
-## mortality
-## successful feeding
-## deterrence
-
-## full_model.stan
-// bernoulli_logistic transformed data function
-data {
-  
-  int<lower=1> N;                  // rows of data
-  
-  int<lower=0> n_t[N];             // Total number of mosquitoes entering IRS huts
-  int<lower=0> d_t[N];             // Number mosquites dead sprayed hut
-  int<lower=0> fed_t[N];           // Number of mosquitoes feeding in IRS HUTS assuming 
-                                   // equal feeding for dead and alive ones
-  int<lower=0> deterrence_IRS[N];  // Number of mosquitoes in sprayed huts
-  int<lower=0> deterrence_total[N]; //Total number of mosquitoes in both sprayed and 
-                                    //control huts
-  
-  vector<lower=0>[N] time;       // predictor
-
-}
-
-parameters {
-  //Consider death. This is the proportion of mosquitoes dying (d_t) in treated huts 
-  //(n_t)
-  real alpha1;
-  real alpha2;
-  
-  //Consider feeding. This is the proportion of mosquitoes that successfully fed  
-  //in treatment (f_t)
-  real beta1;
-  real beta2;
-  
-  //Consider feeding. This is the proportion of mosquitoes that successfully fed 
-  //in treatment (f_t)
-  real omega1;
-  real omega2;
-  
-  //  vector[N_study] study_a;
-  //  real<lower=0,upper=10> sigma;
-}
-
-model {
-  real sp[N];
-  real fp[N];
-  real det[N];
-  
-  alpha1 ~ normal(0,100);
-  alpha2 ~ normal(0,100);
-  
-  beta1 ~ normal(0,100);
-  beta2 ~ normal(0,100);
-  
-  omega1 ~ normal(0,100);
-  omega2 ~ normal(0,100);
-  
-  //  study_a ~ normal(0,sigma);
-  
-  for (n in 1:N) {
-    sp[n] = alpha1  + alpha2 * time[n];
-    fp[n] = beta1  + beta2 * time[n];
-    det[n] = omega1  + omega2 * time[n];
-  }
-  
-  d_t ~ binomial_logit(n_t, sp);
-  fed_t ~ binomial_logit(n_t, fp);
-  deterrence_IRS ~ binomial_logit(deterrence_total, det);
-}
-
-
-## This is the model adjusted here to fit to 
-## cone bioassay mortality in data from Southern Mozambique
-## log_model.stan
-// bernoulli_logistic transformed data function
-data {
-  
-  int<lower=1> N;                  // rows of data
-  
-  int<lower=0> n_t[N];             // Total number of mosquitoes counted
-  int<lower=0> d_t[N];             // Number mosquites killed during the test
-  
-  vector<lower=0>[N] time;         // time predictor e.g. months
-  
-  int<lower=1> N_eff;              // a random effect eg wall type / location / 
-                                   // mosquito species etc
-  int<lower=1, upper = N_eff> eff[N];
-  
-}
-
-parameters {
-  //Consider death. This is the proportion of mosquitoes dying (d_t) of 
-  //all tested (n_t)
-  real alpha1[N_eff];
-  real alpha2[N_eff];
-  
-}
-
-model {
-  real sp[N];
-  
-  alpha1 ~ normal(0,10);
-  alpha2 ~ normal(0,10);
-  
-  for (n in 1:N) {
-    sp[n] = alpha1[eff[n]] + alpha2[eff[n]] * time[n];
-  }
-  
-  d_t ~ binomial_logit(n_t, sp);
-}
-
-generated quantities{
-  real sp_ppc[N_eff, 365];// this is to predict for 365 time points so 
-                          // adjust time accordingly
-    
-    for(v in 1:N_eff){
-      for(t in 1:365){
-        sp_ppc[v, t] = binomial_rng(365, inv_logit(alpha1[v] + alpha2[v] * t)) / 365.0;
-      }
-    }
-}
-
-
-```
-
-We then estimate the weighted-average mortality impact on mosquitoes given the ratio of mud vs cement walls in Matutuine or Boane.
-
-These outcomes are then combined with the systematic review to give us a method to track the waning entomological impact (on mosquito mortality, successful blood-feeding and deterrence) of the spray products over time since a household was treated.
-
-The results are shown in Figure 5 main manuscript.
-
-```{r echo=TRUE,  eval=FALSE}
-####################################################################
+####################################
 ##
-## 1 Cone bioassay data from the field 
+## Figure 4
 ##
-#####################################################################
-
-  ## Add in a line to demonstrate the residual efficacy estimated by Mercy in MOZAMBIQUE
-  data_list_mud = list(N = N_data, ## number
-                   d_t = Con_bio_d_t_mud,
-                   n_t = Con_bio_n_t_mud,
-                   time = time_sequence,
-                   N_eff = 1, ## eg '2' for 2 wall types
-                   eff = rep(1,N_data))##[the number of reps for each group in your data]
-  
-  data_list_cem = list(N = N_data, ## number
-                       d_t = Con_bio_d_t_cem,
-                       n_t = Con_bio_n_t_cem,
-                       time = time_sequence,
-                       N_eff = 1, ## eg '2' for 2 wall types
-                       eff = rep(1,N_data))##[the number of reps for each group in your data]
-  
-  
-  stan_model_mud <- stan(file="models/log_mod.stan", 
-                     data=data_list_mud, 
-                     warmup=500,
-                     control = list(adapt_delta = 0.9,
-                                    max_treedepth = 20),
-                     iter=1000, chains=4)
-  
-  stan_model_cem <- stan(file="models/log_mod.stan", 
-                         data=data_list_cem, 
-                         warmup=500,
-                         control = list(adapt_delta = 0.9,
-                                        max_treedepth = 20),
-                         iter=1000, chains=4)
-
-  base_moz1 <- extract(stan_model_mud) ## can use this to extract the model parameter estimates
-  base_moz2 <- extract(stan_model_cem) ## can use this to extract the model parameter estimates
-  
-  ## plot it against your data!
-  d_t1 = Con_bio_d_t_mud
-  n_t1 = Con_bio_n_t_mud
-  DEAD1 = d_t1/n_t1
-  
-  d_t2 = Con_bio_d_t_cem
-  n_t2 = Con_bio_n_t_cem
-  DEAD2 = d_t2/n_t2
-
-  time = seq(1,365,by=1)
-  
-  mean_prediction_mud = 1 / (1 + exp(-mean(base_moz1$alpha1[,1]) - 
-                                       mean(base_moz1$alpha2[,1])*time))
-  max_prediction_mud = 1 / (1 + exp(-quantile(base_moz1$alpha1[,1],0.9) - 
-                                      quantile(base_moz1$alpha2[,1],0.9)*time))
-  min_prediction_mud = 1 / (1 + exp(-quantile(base_moz1$alpha1[,1],0.1) - 
-                                      quantile(base_moz1$alpha2[,1],0.1)*time))
-  
-  mean_prediction_cem = 1 / (1 + exp(-mean(base_moz2$alpha1[,1]) - 
-                                       mean(base_moz2$alpha2[,1])*time))
-  max_prediction_cem = 1 / (1 + exp(-quantile(base_moz2$alpha1[,1],0.9) - 
-                                      quantile(base_moz2$alpha2[,1],0.9)*time))
-  min_prediction_cem = 1 / (1 + exp(-quantile(base_moz2$alpha1[,1],0.1) - 
-                                      quantile(base_moz2$alpha2[,1],0.1)*time))
-  
-  ## The mean prediction is weighted by the proportion of households
-  ## with mud or cement walls in each village
-  
-  ## percent_mud: 40% for Matutuine, 97% for Boane
-  ## percent_cem: 60% for Matutuine,  3% for Boane
-  mean_prediction = (mean_prediction_mud*percent_mud) + (mean_prediction_cem*percent_cem)
-  
-  feed2 = (1 - mean_prediction) * mean_valsfp_checker4 * (1 - mean_valsdet_checker4)
-  death2 = mean_prediction  * (1 - mean_valsdet_checker4)
-  rep2 = (1 - (death1 + feed1)) * (1 - mean_valsdet_checker4)
-  deter2 = mean_valsdet_checker4  
-  
-  TOTS2 = feed2 + rep2 + death2 + deter2
-  
-
-```
-
-
-## Analysis 2
-
-The time-dependent efficacy from LLINs is estimated similarly following (2). The successful biting (s_ITN), repeating (r_ITN), and killing (d_ITN) in the presence of LLINs also wanes with time as determined from systematic review of experimental hut data testing unwashed and washed pyrethroid treated mosquito nets (ITNs). We assume the performance of ITNs will be equivalent to nets aged 1.5 years as the mass campaign took place in 2016 - 2017 in Southern Mozambique. 
-
-```{r echo = TRUE, eval = FALSE}
-
-##############################
-##
-## 2 Estimated impact of ITNs, from Churcher et al. 2016 (2)
-##
-###############################
-
-
-## The following parameters are taken from (Churcher et al 2016 (2))		
-##
-itn_half_life = 2.64
-
-d_ITN0 <- 0.51
-s_ITN0 <- 0.31
-r_ITN0 <- 1-ERG_d_ITN0-ERG_s_ITN0
-
-itn_loss = log(2)/itn_half_life
-
-ITN_interval=3*365
-
-
-## decay in efficacy of net over time
-#time=1:(365*3)
-ITN_decay = exp(-(time/ITN_interval)*itn_loss)
-
-r_ITN_min=0.24 
-d_ITN = ERG_d_ITN0 * ITN_decay 	 		## insecticide mortality rate 
-r_ITN = r_ITN_min + (ERG_r_ITN0 - r_ITN_min)*ITN_decay 
-s_ITN = 1 - d_ITN - r_ITN			## successful protected human biting 
-
-
-
-```
-
-
-## Analysis 3
-
-
-To quantify the impact of post-spray wall modification, prolonged spray campaigns, and IRS efficacy on IRS effectiveness, we adapt a mechanistic vector model approach determined in Le Menach 2007 (3) and Griffin et al (2010) (4) and updated in Walker et al 2016 (5). This model outlines how indoor interventions are affecting the number of mosquito bites received per person per time unit which has ramifications for the infectious mosquito bites received per person per year (the entomological inoculation rate, EIR) and malaria transmission. The probability that a blood-seeking mosquito successfully feeds will depend on the species-specific bionomics and behaviors of the mosquito (e.g. the proportion of bites taken on humans, the proportion of bites received indoors or in bed) and the vector interventions that protect the human population. In our case, in the absence of locally available mosquito bionomics data, we use an average estimate for these parameters and keep these consistent between sentinel districts 
-
-
-```{r echo = TRUE, eval = FALSE}
-
-## These are the Bayesian posterior draws for IRS impact
-actellic_details = readRDS("data/actellic_details_v2.Rdata")
-sumishield_details = readRDS("data/sumishield_details_v2.Rdata")
-
-
-## We investigate impacts as per
-
-##  1 the effect if there is no intervention
-##  2 with ITNs only
-##  3 with IRS only no loss in coverage
-##  4 with IRS only loss in coverage
-##  5 ITN + IRS no loss
-##  6 ITN + IRS loss
+####################################################
 
 actellic_details = readRDS("data/actellic_details_v2.Rdata")
 sumishield_details = readRDS("data/sumishield_details_v2.Rdata")
 
 time = 1:365
+par(mfrow=c(2,3))
 
-## see Table 3 main manuscript
-## Creating arrays for 
-w_Acte = w_Sumi = #Probability of successful feeding
-yy_Acte = yy_Sumi = #Probability of biting  
-z_Acte = z_Sumi = #Probability of repellence
-    array(dim=c(240,4)) 
-## for district uing Actellic (A, or Acte) or SumiShield (S or Sumi) distinctly
+## derived ITN/IRS quantities
+## prob bites and survives
 
+w_Acte = yy_Acte = z_Acte = 
+  w_Sumi = yy_Sumi = z_Sumi = array(dim=c(240,4)) 
+## column 1 will be the effect if there is no intervention
+## column 2 is with ITNs only
+## column 3 is with IRS only no loss in coverage
+## column 4 is with IRS only loss in coverage
+## column 5 is ITN + IRS no loss
+## column 6 is ITN + IRS loss
 
-## Assuming mosquito bionomics are constant in each setting
+#############################
+## 
+
+##Species are different in each location 
 PHI_B_mut = 0.85 ## probability of bites in bed
 PHI_I_mut = 0.90 ## probability of bites indoors
 
 PHI_B_boa = 0.85 ## probability of bites in bed
 PHI_I_boa = 0.9 ## probability of bites indoors
 
-k0 = 0.699 #probability of feeding in the absence of an intervention (Griffin et al. 2010 (4))
+# return(list(mean_prediction,
+#             feed2,
+#             death2,
+#             rep2,
+#             deter2))
+# actellic_details
+# sumishield_details
+
+k0 = 0.699
 ksA = actellic_details[[2]]
 lsA = actellic_details[[3]]
 jsA = 1 - actellic_details[[2]] - actellic_details[[3]]
@@ -330,38 +55,25 @@ jsS = 1 - sumishield_details[[2]] - sumishield_details[[3]]
 s_IRS_Sumi = ksS/k0 ##feed2
 r_IRS_Sumi = (1 - ksS/k0)*(jsS/(lsS+jsS)) ##rep2
 
-## Probability that a mosquito bites and survives in the presence of indoor vector control
-w_Acte[,1] = w_Sumi[,1] = rep(1,240) 
+w_Acte[,1] = w_Sumi[,1] = rep(1,240) ## Probability that a mosquito bites and survives in the presence of indoor vector control
 for(i in 1:240){
   PHI_B = PHI_B_mut
   PHI_I = PHI_I_mut
-  
-  ## probability of surviving biting given that there is ITN
-  w_Acte[i,2] = 1 - PHI_B + PHI_B*s_ITN[i+547]				 
-  
-  ## probability of surviving biting given that there is IRS
-  w_Acte[i,3] = 1 - PHI_I + PHI_I*(1-r_IRS_Acte[i])*s_IRS_Acte[i]
-  
-  ## probability of surviving biting given that there is ITN & IRS
-  w_Acte[i,4] = 1 - PHI_I + PHI_B*(1-r_IRS_Acte[i])*s_ITN[i+547]*s_IRS_Acte[i] + 
-    (PHI_I - PHI_B)*(1-r_IRS_Acte[i])*s_IRS_Acte[i] 
+  w_Acte[i,2] = 1 - PHI_B + PHI_B*s_ITN[i+547]				 ## probability of surviving biting given that there is ITN
+  w_Acte[i,3] = 1 - PHI_I + PHI_I*(1-r_IRS_Acte[i])*s_IRS_Acte[i]	##			probability of surviving biting given that there is IRS
+  w_Acte[i,4] = 1 - PHI_I + PHI_B*(1-r_IRS_Acte[i])*s_ITN[i+547]*s_IRS_Acte[i] + (PHI_I - PHI_B)*(1-r_IRS_Acte[i])*s_IRS_Acte[i] ## probability of surviving biting given that there is ITN & IRS
 }
-
 for(i in 1:240){
   PHI_B = PHI_B_boa
   PHI_I = PHI_I_boa
-  
-  ## probability of surviving biting given that there is ITN
-  w_Sumi[i,2] = 1 - PHI_B + PHI_B*s_ITN[i+547]				 
-  
-  ## probability of surviving biting given that there is IRS
-  w_Sumi[i,3] = 1 - PHI_I + PHI_I*(1-r_IRS_Sumi[i])*s_IRS_Sumi[i]	
-  
-  ## probability of surviving biting given that there is ITN & IRS
-  w_Sumi[i,4] = 1 - PHI_I + PHI_B*(1-r_IRS_Sumi[i])*s_ITN[i+547]*s_IRS_Sumi[i] + 
-    (PHI_I - PHI_B)*(1-r_IRS_Sumi[i])*s_IRS_Sumi[i] 
+  w_Sumi[i,2] = 1 - PHI_B + PHI_B*s_ITN[i+547]				 ## probability of surviving biting given that there is ITN
+  w_Sumi[i,3] = 1 - PHI_I + PHI_I*(1-r_IRS_Sumi[i])*s_IRS_Sumi[i]	##			probability of surviving biting given that there is IRS
+  w_Sumi[i,4] = 1 - PHI_I + PHI_B*(1-r_IRS_Sumi[i])*s_ITN[i+547]*s_IRS_Sumi[i] + (PHI_I - PHI_B)*(1-r_IRS_Sumi[i])*s_IRS_Sumi[i] ## probability of surviving biting given that there is ITN & IRS
   
 }
+
+# par(mfrow = c(2,3))
+
 
 ## Probability of any bite (if there is IRS, a mosquito may bite and then die immediately afterwards)
 yy_Acte[,1] = w_Acte[,1] 
@@ -398,24 +110,17 @@ for(i in 1:240){
   z_Sumi[i,4] = PHI_B*(r_IRS_Sumi[i] + (1-r_IRS_Sumi[i])*r_ITN[i+547]) + (PHI_I - PHI_B)*r_IRS_Sumi[i]
   
 }
-
-
 ## waning usage of IRS with time
+
 ## from Table 1 main manuscript 
 prop_mod_Acte = 1 -  c(rep(0,10), ## august &  & oct
                        rep(14/129,4), ## nov
                        rep(14/129,4)+rep((12+7)/(117+88),4), ## dec
                        rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4), ## jan
-                       rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+
-                         rep((20+10+3)/(116+85+25),4), ## feb
-                       rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+
-                         rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4), ## mar
-                       rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+
-                         rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4)+
-                         rep((16+6+1)/(84+25),4), ## apr
-                       rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+
-                         rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4)+
-                         rep((16+6+1)/(84+25),4)+rep((4+1)/(81+25),4)) ## may
+                       rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4), ## feb
+                       rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4), ## mar
+                       rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4)+rep((16+6+1)/(84+25),4), ## apr
+                       rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4)+rep((16+6+1)/(84+25),4)+rep((4+1)/(81+25),4)) ## may
 
 prop_mod_Acte
 
@@ -430,28 +135,20 @@ prop_mod_Sumi = 1 - c(rep(0,10),##aug & sep & oct
                       rep(4/153,4),#nov
                       rep(4/153,4)+rep((4+4)/(144+113),4),#dec
                       rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4),#jan
-                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+
-                        rep((2+1)/(138+88+75),4),#feb
-                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+
-                        rep((2+1)/(138+88+75),4)+rep((2+1)/(137+86+75),4),#mar
-                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+
-                        rep((2+1)/(138+88+75),4)+rep((2+1)/(137+86+75),4)+rep(0,8)#apr-may
+                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4),#feb
+                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4)+rep((2+1)/(137+86+75),4),#mar
+                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4)+rep((2+1)/(137+86+75),4)+rep(0,8)#apr-may
 )
-
-
 true_cover_irs_Sumi = rep(prop_mod_Sumi*prop_houses_sprayed_WeeklyB,each=7)
-
-#House coverage: Boane district 97 %
 irs_cov_Sumi = rep(prop_mod_Sumi*0.97,each=7)
-
-## Figure 3A
+time = 1:365
 plot(irs_cov_no_loss_Acte[61:240] ~ time[61:240],ylab = "Community IRS cover (%)",
      ylim=c(0,1),col="black",pch="",
      main = "",cex.main=1.2,xlim=c(1,240),xaxt="n",
      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
 axis(2,las=2,at=seq(0,1,0.2),labels=seq(0,100,20),cex.lab=1.4,cex.axis=1.4)
-axis(1,at=seq(0,230,30)+15,
-     labels = c("Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr"),cex.axis = 1.4)
+axis(1,at=seq(0,230,30)+15,labels = c("Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr"),cex.axis = 1.4)
+
 
 lines(irs_cov_no_loss_Acte[61:240] ~ time[61:240],lty=1,lwd=2,col = "darkblue") ## IRS only no loss 
 lines(irs_cov_Acte[61:240] ~ time[61:240],lty=3,lwd=2,col = "darkblue") ## IRS with loss
@@ -459,14 +156,14 @@ lines(irs_cov_Acte[61:240] ~ time[61:240],lty=3,lwd=2,col = "darkblue") ## IRS w
 lines(irs_cov_no_loss_Sumi[61:240] ~ c(time[61:240]+1),lty=1,lwd=2,col = "aquamarine3")
 lines(irs_cov_Sumi[61:240] ~ time[61:240],lty=3,lwd=2,col = "aquamarine3")
 
-legend("bottomleft",
-       legend = c("Matutuine","Boane","IRS cover, no loss", "IRS cover, observed loss"),
+legend("bottomleft",legend = c("Matutuine","Boane","IRS cover, no loss", "IRS cover, observed loss"),
        col = c("darkblue","aquamarine3","black","black"),lwd = 2, lty=c(NA,NA,1,3),
        pch=c(15,15,NA,NA),cex=1.2,bty="n")
 
-
-## Define the net use estimates
 cov1A = cov1S = cov2A = cov2S = array(dim=c(240,4))
+
+# itn_cov_Acte = 0.52
+# itn_cov_Sumi = 0.73
 
 ## Table 1 data
 matu_net_cov = c(27.9,  ## nov
@@ -534,8 +231,20 @@ cov2S[,2] = itn_cov_Sumi[1:240] ## ITN only
 cov2S[,3] = irs_cov_Sumi[1:240] ## IRS only
 cov2S[,4] = itn_cov_Sumi[1:240]*irs_cov_Sumi[1:240] ## both interventions
 
-
-## Table 2
+# plot(cov1[,1] ~ time,ylim=c(0,1),pch="",
+#      ylab = "Intervention use (%)",
+#      col="black",
+#      main = "",cex.main=1.2,xlim=c(1,365),xaxt="n",
+#      xlab="Time in days",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
+# axis(2,las=2,at=seq(0,1,0.2),labels=seq(0,100,20),cex.lab=1.4,cex.axis=1.4)
+# axis(1,at=seq(0,365,120),cex.lab=1.4,cex.axis=1.4)
+# 
+# colsd=c("grey","purple","aquamarine3","blue")
+# for(i in 1:3){
+#   lines(cov1[,i] ~ time,col=colsd[i])
+#   lines(cov2[,i] ~ time,col=colsd[i],lty=2)
+# }
+# 
 ## Entomological model parameters to estimate 
 
 Q0 = 0.92  ## this is anthropophagy - we can use human blood index
@@ -567,6 +276,11 @@ whi2A=cov2A*w_Acte[1:240,]
 zhi2S=cov2S*z_Sumi[1:240,]
 whi2S=cov2S*w_Sumi[1:240,]
 
+# zhi1[,4]=cov1[,2]*z[,2] * (1 - cov1[,3]*z[,3]) + cov1[,3]*z[,3]
+# zhi2[,4]=cov2[,2]*z[,2] * (1 - cov2[,3]*z[,3]) + cov2[,3]*z[,3]
+# 
+# whi1[,4]=cov1[,2]*w[,2] * (1 - cov1[,3]*w[,3]) + cov1[,3]*w[,3]
+# whi2[,4]=cov2[,2]*w[,2] * (1 - cov2[,3]*w[,3]) + cov2[,3]*w[,3]
 
 zbar1A = wbar1A = zbar2A = wbar2A = array(dim=c(240,4)) 
 zbar1S = wbar1S = zbar2S = wbar2S = array(dim=c(240,4)) 
@@ -582,7 +296,7 @@ for(i in 1:4){
   wbar2S[,i] = (1 - Q0) + Q0*whi2S[,i]
 }
 
-## From Walker et al 2016 (5)
+## From Walker et al 2016
 ## Mosquito feeding rate (tau1 is delta10, tau2 is delta2 in the methods)
 fR1A = 1 / ((tau1/(1 - zbar1A)) + tau2)
 mu1A = -fR1A*log((wbar1A*p10/(1 - zbar1A*p10))*p2) 
@@ -616,7 +330,6 @@ for(i in 1:4){
 
 
 ## Actually we want to look at the comparison so:
-## Figure 3B main manuscript
 plot(lambda1A[61:240,1] ~ time[61:240],ylim=c(0,2.5),pch="",
      ylab = "Mosquito bites received per person per day",
      col="black",
@@ -642,6 +355,9 @@ for(i in 3){
   
 }
 
+# for(i in 1:4) lines(yy[1:180,i]~time[1:180],col=colsd[i],lwd=2)
+# for(i in 1:4) lines(fR1[,i]~time[1:180],col=colsd[i],lwd=2)
+# for(i in 1:4) lines(Q1[,i]~time[1:180],col=colsd[i],lwd=2,lty=2)
 
 legend("topleft",legend = c("Matutuine (ITN use)",
                             "Boane (ITN use)",
@@ -658,10 +374,27 @@ Estimated_added_EIR = array(dim=c(240,2))
 Estimated_added_EIR[,1] = (lambda2A[,4] - lambda1A[,4])
 Estimated_added_EIR[,2] = (lambda2S[,4] - lambda1S[,4])
 
+c(sum(Estimated_added_EIR[1:30,1])/30,sum(Estimated_added_EIR[31:60,1])/30,
+  sum(Estimated_added_EIR[61:90,1])/30,sum(Estimated_added_EIR[91:120,1])/30,
+  sum(Estimated_added_EIR[121:150,1])/30,sum(Estimated_added_EIR[151:180,1])/30)
+
+c(sum(Estimated_added_EIR[1:30,2])/30,sum(Estimated_added_EIR[31:60,2])/30,
+  sum(Estimated_added_EIR[61:90,2])/30,sum(Estimated_added_EIR[91:120,2])/30,
+  sum(Estimated_added_EIR[121:150,2])/30,sum(Estimated_added_EIR[151:180,2])/30)
+
+
 ## Additional infectious bites per person per year 
 Estimated_propn_increase_EIR = array(dim=c(240,2))
 Estimated_propn_increase_EIR[,1] = (lambda2A[,4] - lambda1A[,4])/lambda2A[,4]
 Estimated_propn_increase_EIR[,2] = (lambda2S[,4] - lambda1S[,4])/lambda2S[,4]
+
+c(sum(Estimated_propn_increase_EIR[1:30,1])/30,sum(Estimated_propn_increase_EIR[31:60,1])/30,
+  sum(Estimated_propn_increase_EIR[61:90,1])/30,sum(Estimated_propn_increase_EIR[91:120,1])/30,
+  sum(Estimated_propn_increase_EIR[121:150,1])/30,sum(Estimated_propn_increase_EIR[151:180,1])/30)
+
+c(sum(Estimated_propn_increase_EIR[1:30,2])/30,sum(Estimated_propn_increase_EIR[31:60,2])/30,
+  sum(Estimated_propn_increase_EIR[61:90,2])/30,sum(Estimated_propn_increase_EIR[91:120,2])/30,
+  sum(Estimated_propn_increase_EIR[121:150,2])/30,sum(Estimated_propn_increase_EIR[151:180,2])/30)
 
 mean(Estimated_propn_increase_EIR[15:45,1])##sep
 mean(Estimated_propn_increase_EIR[46:75,1])##oct
@@ -681,7 +414,7 @@ mean(Estimated_propn_increase_EIR[166:195,2])##feb
 mean(Estimated_propn_increase_EIR[196:225,2])##mar
 mean(Estimated_propn_increase_EIR[226:240,2])##part april
 
-## Figure 3C main manuscript
+
 plot(Estimated_propn_increase_EIR[61:240,1] ~ time[61:240],ylim=c(0,1),pch="",
      ylab = "",
      col="black",
@@ -713,6 +446,13 @@ for(i in 1:2){
   lines(Estimated_propn_increase_EIR[61:240,i] ~ time[61:240],col=colsd[i],lty=1,lwd=1)
 }
 
+mean(Estimated_propn_increase_EIR[1:30,1])
+mean(Estimated_propn_increase_EIR[31:60,1])
+mean(Estimated_propn_increase_EIR[61:92,1])
+mean(Estimated_propn_increase_EIR[93:122,1])
+mean(Estimated_propn_increase_EIR[123:153,1])
+mean(Estimated_propn_increase_EIR[154:180,1])
+
 
 legend("topleft",legend = c("Matutuine (assuming no ITN)","Boane (assuming no ITN)",
                             "Matutuine (ITN use)","Boane (ITN use)"),
@@ -722,8 +462,8 @@ legend("topleft",legend = c("Matutuine (assuming no ITN)","Boane (assuming no IT
 
 ####################################
 ##
-##   Work out the probability  
-##   whilst considering the prolonged nature of IRS campaigns
+## 4 Work out the probability that a feeding attempt by mosquito from species i ends in blood feeding on a person 
+##   whilst considering the prolonged nature of application campaigns
 ##
 ####################################################
 
@@ -732,13 +472,48 @@ legend("topleft",legend = c("Matutuine (assuming no ITN)","Boane (assuming no IT
 ## reflects the proportion of houses covered by the spray campaign
 ## in that month
 
-## Again we set up the relevant arrays
+## Houses were tracked from November, December and January (1 in Feb)
+## 129/(129+88+27+1) is 52.65% of houses in the community have max protection in Nov
+## 88/(129+88+27+1) is 35.92% of houses max protection Dec (52% - any modifications have 1 mont old protection)
+## 27/(129+88+27+1) is 11.02% max protection Jan (35.92% - modif 1 month old, 52% - modif 2 month old)
+
+
+## derived ITN/IRS quantities
+## prob bites and survives
+
+w_Acte = yy_Acte = z_Acte = w_Sumi = yy_Sumi = z_Sumi = array(dim=c(365,4)) 
 w_Acte1 = yy_Acte1 = z_Acte1 = w_Sumi1 = yy_Sumi1 = z_Sumi1 = array(dim=c(365,18,4))
+# 
+# 
+# w_Acte1 = yy_Acte1 = z_Acte1 = w_Sumi1 = yy_Sumi1 = z_Sumi1 = array(dim=c(180,4)) 
+# w_Acte2 = yy_Acte2 = z_Acte2 = w_Sumi2 = yy_Sumi2 = z_Sumi2 = array(dim=c(180,4)) 
+# w_Acte3 = yy_Acte3 = z_Acte3 = w_Sumi3 = yy_Sumi3 = z_Sumi3 = array(dim=c(180,4)) 
+# 
+## column 1 will be the effect if there is no intervention
+## column 2 is with ITNs only
+## column 3 is with IRS only no loss in coverage
+## column 4 is with IRS only loss in coverage
+## column 5 is ITN + IRS no loss
+## column 6 is ITN + IRS loss
 
 #############################
 ## 
 
-## Data from NMCP on the weekly accumulated coverage for IRS campaigns
+##Species are different in each location 
+PHI_B_mut = 0.85 ## probability of bites in bed
+PHI_I_mut = 0.90 ## probability of bites indoors
+
+PHI_B_boa = 0.85 ## probability of bites in bed
+PHI_I_boa = 0.90 ## probability of bites indoors
+
+# return(list(mean_prediction,
+#             feed2,
+#             death2,
+#             rep2,
+#             deter2))
+# actellic_details
+# sumishield_details
+
 prop_houses_sprayed_WeeklyB = 0.97*c(0,	0.027219794,	## August
                                 0.077014558,	0.136261919,	0.196901742,	0.250817066, ## Sept
                                 0.301047746,	0.347687015,	0.395348206,	0.464541108, ## Oct
@@ -796,33 +571,59 @@ for(w in 1:18){
   
 }
 
+# ksS = sumishield_details[[2]]
+# lsS = sumishield_details[[3]]
+# jsS = 1 - sumishield_details[[2]] - sumishield_details[[3]]
+# 
+# ksS1 = sumishield_details[[2]]
+# lsS1 = sumishield_details[[3]]
+# jsS1 = 1 - sumishield_details[[2]] - sumishield_details[[3]]
+# 
+# ksS2 = c(rep(k0,30),sumishield_details[[2]][1:335])
+# lsS2 = c(rep(k0,30),sumishield_details[[3]][1:335])
+# jsS2 = 1 - ksS2 - lsS2
+# 
+# ksS3 = c(rep(k0,61),sumishield_details[[2]][1:304])
+# lsS3 = c(rep(k0,61),sumishield_details[[3]][1:304])
+# jsS3 = 1 - ksS3 - lsS3
+
+# s_IRS_Sumi1 = ksS1/k0 ##feed2
+# r_IRS_Sumi1 = (1 - ksS1/k0)*(jsS1/(lsS1+jsS1)) ##rep2
+# 
+# s_IRS_Sumi2 = ksS2/k0 ##feed2
+# r_IRS_Sumi2 = (1 - ksS2/k0)*(jsS2/(lsS2+jsS2)) ##rep2
+# 
+# s_IRS_Sumi3 = ksS3/k0 ##feed2
+# r_IRS_Sumi3 = (1 - ksS3/k0)*(jsS3/(lsS3+jsS3)) ##rep2
+
 w_Acte1[,,1] = w_Sumi1[,,1] = rep(1,365) 
 ## Probability that a mosquito bites and survives in the presence of indoor vector control
 for(j in 1:18){
   for(i in 1:365){
     PHI_B = 0.85
     PHI_I = 0.9
+    w_Acte1[i,j,2] = 1 - PHI_B + PHI_B*s_ITN[i+547]				 ## probability of surviving biting given that there is ITN
+    w_Acte1[i,j,3] = 1 - PHI_I + PHI_I*(1-r_IRS_Acte1[i,j])*s_IRS_Acte1[i,j]	##			probability of surviving biting given that there is IRS
+    w_Acte1[i,j,4] = 1 - PHI_I + PHI_B*(1-r_IRS_Acte1[i,j])*s_ITN[i+547]*s_IRS_Acte1[i,j] + (PHI_I - PHI_B)*(1-r_IRS_Acte1[i,j])*s_IRS_Acte1[i,j] ## probability of surviving biting given that there is ITN & IRS
     
-    ## probability of surviving biting given that there is ITN
-    w_Acte1[i,j,2] = 1 - PHI_B + PHI_B*s_ITN[i+547]				 
-    w_Sumi1[i,j,2] = 1 - PHI_B + PHI_B*s_ITN[i+547]				
     
-    ##			probability of surviving biting given that there is IRS
-    w_Acte1[i,j,3] = 1 - PHI_I + PHI_I*(1-r_IRS_Acte1[i,j])*s_IRS_Acte1[i,j]	
-    w_Sumi1[i,j,3] = 1 - PHI_I + PHI_I*(1-r_IRS_Sumi1[i,j])*s_IRS_Sumi1[i,j]
-    
-    ## probability of surviving biting given that there is ITN & IRS
-    w_Acte1[i,j,4] = 1 - PHI_I + PHI_B*(1-r_IRS_Acte1[i,j])*s_ITN[i+547]*s_IRS_Acte1[i,j] + 
-      (PHI_I - PHI_B)*(1-r_IRS_Acte1[i,j])*s_IRS_Acte1[i,j] 
-    
-    w_Sumi1[i,j,4] = 1 - PHI_I + PHI_B*(1-r_IRS_Sumi1[i,j])*s_ITN[i+547]*s_IRS_Sumi1[i,j] + 
-      (PHI_I - PHI_B)*(1-r_IRS_Sumi1[i,j])*s_IRS_Sumi1[i,j] 
+    w_Sumi1[i,j,2] = 1 - PHI_B + PHI_B*s_ITN[i+547]				 ## probability of surviving biting given that there is ITN
+    w_Sumi1[i,j,3] = 1 - PHI_I + PHI_I*(1-r_IRS_Sumi1[i,j])*s_IRS_Sumi1[i,j]	##			probability of surviving biting given that there is IRS
+    w_Sumi1[i,j,4] = 1 - PHI_I + PHI_B*(1-r_IRS_Sumi1[i,j])*s_ITN[i+547]*s_IRS_Sumi1[i,j] + (PHI_I - PHI_B)*(1-r_IRS_Sumi1[i,j])*s_IRS_Sumi1[i,j] ## probability of surviving biting given that there is ITN & IRS
     
   }
   
 }
 
-## work out the actual cover each week
+#   w_Acte2[i,2] = 1 - PHI_B + PHI_B*s_ITN[i]				 ## probability of surviving biting given that there is ITN
+#   w_Acte2[i,3] = 1 - PHI_I + PHI_I*(1-r_IRS_Acte2[i])*s_IRS_Acte2[i]	##			probability of surviving biting given that there is IRS
+#   w_Acte2[i,4] = 1 - PHI_I + PHI_B*(1-r_IRS_Acte2[i])*s_ITN[i]*s_IRS_Acte2[i] + (PHI_I - PHI_B)*(1-r_IRS_Acte2[i])*s_IRS_Acte2[i] ## probability of surviving biting given that there is ITN & IRS
+#   
+#   w_Acte3[i,2] = 1 - PHI_B + PHI_B*s_ITN[i]				 ## probability of surviving biting given that there is ITN
+#   w_Acte3[i,3] = 1 - PHI_I + PHI_I*(1-r_IRS_Acte3[i])*s_IRS_Acte3[i]	##			probability of surviving biting given that there is IRS
+#   w_Acte3[i,4] = 1 - PHI_I + PHI_B*(1-r_IRS_Acte3[i])*s_ITN[i]*s_IRS_Acte3[i] + (PHI_I - PHI_B)*(1-r_IRS_Acte3[i])*s_IRS_Acte3[i] ## probability of surviving biting given that there is ITN & IRS
+# }
+
 prop_this_weekM = c(prop_houses_sprayed_WeeklyM[1],diff(prop_houses_sprayed_WeeklyM)[1:17])
 prop_this_weekB = c(prop_houses_sprayed_WeeklyB[1],diff(prop_houses_sprayed_WeeklyB)[1:17])
 
@@ -841,22 +642,25 @@ for(i in 1:365){
 }
 
 
-## Probability of any bite (if there is IRS, a mosquito may bite and 
-## then die immediately afterwards)
+
+
+
+## Probability of any bite (if there is IRS, a mosquito may bite and then die immediately afterwards)
 yy_Acte[,1] = w_Acte[,1] 
 yy_Acte[,2] = w_Acte[,2]
+
+# yy_Sumi[,1] = w_Sumi[,1] 
+# yy_Sumi[,2] = w_Sumi[,2]
 
 for(j in 1:18){
   for(i in 1:365){
     PHI_B = 0.85
     PHI_I = 0.9
     yy_Acte1[i,j,3] = 1 - PHI_I + PHI_I*(1-r_IRS_Acte1[i,j])
-    yy_Acte1[i,j,4] = 1 - PHI_I + PHI_B*(1-r_IRS_Acte1[i,j])*s_ITN[i+547] + 
-      (PHI_I - PHI_B)*(1-r_IRS_Acte1[i,j])
+    yy_Acte1[i,j,4] = 1 - PHI_I + PHI_B*(1-r_IRS_Acte1[i,j])*s_ITN[i+547] + (PHI_I - PHI_B)*(1-r_IRS_Acte1[i,j])
     
     yy_Sumi1[i,j,3] = 1 - PHI_I + PHI_I*(1-r_IRS_Sumi1[i,j])
-    yy_Sumi1[i,j,4] = 1 - PHI_I + PHI_B*(1-r_IRS_Sumi1[i,j])*s_ITN[i+547] + 
-      (PHI_I - PHI_B)*(1-r_IRS_Sumi1[i,j])
+    yy_Sumi1[i,j,4] = 1 - PHI_I + PHI_B*(1-r_IRS_Sumi1[i,j])*s_ITN[i+547] + (PHI_I - PHI_B)*(1-r_IRS_Sumi1[i,j])
   }  
 }
 
@@ -876,13 +680,11 @@ for(j in 1:18){
   for(i in 1:365){
     z_Acte1[i,j,2] = PHI_B*r_ITN[i+547]
     z_Acte1[i,j,3] = PHI_I*r_IRS_Acte1[i,j]
-    z_Acte1[i,j,4] = PHI_B*(r_IRS_Acte1[i,j] + (1-r_IRS_Acte1[i,j])*r_ITN[i+547]) + 
-      (PHI_I - PHI_B)*r_IRS_Acte1[i,j]
+    z_Acte1[i,j,4] = PHI_B*(r_IRS_Acte1[i,j] + (1-r_IRS_Acte1[i,j])*r_ITN[i+547]) + (PHI_I - PHI_B)*r_IRS_Acte1[i,j]
     
     z_Sumi1[i,j,2] = PHI_B*r_ITN[i+547]
     z_Sumi1[i,j,3] = PHI_I*r_IRS_Sumi1[i,j]
-    z_Sumi1[i,j,4] = PHI_B*(r_IRS_Sumi1[i,j] + (1-r_IRS_Sumi1[i,j])*r_ITN[i+547]) + 
-      (PHI_I - PHI_B)*r_IRS_Sumi1[i,j]
+    z_Sumi1[i,j,4] = PHI_B*(r_IRS_Sumi1[i,j] + (1-r_IRS_Sumi1[i,j])*r_ITN[i+547]) + (PHI_I - PHI_B)*r_IRS_Sumi1[i,j]
     
   }  
 }
@@ -901,7 +703,6 @@ for(i in 1:365){
 
 ## waning usage of IRS with time
 ## as well as altered cover over time from 3 month time line of campaign
-## Data from the NMCP
 prop_houses_sprayed_WeeklyB = 0.97*c(0,	0.027219794,	## August
                                 0.077014558,	0.136261919,	0.196901742,	0.250817066, ## Sept
                                 0.301047746,	0.347687015,	0.395348206,	0.464541108, ## Oct
@@ -926,16 +727,10 @@ prop_mod_Acte = 1 -  c(rep(0,10), ## august &  & oct
                   rep(14/129,4), ## nov
                   rep(14/129,4)+rep((12+7)/(117+88),4), ## dec
                   rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4), ## jan
-                  rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+
-                    rep((20+10+3)/(116+85+25),4), ## feb
-                  rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+
-                    rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4), ## mar
-                  rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+
-                    rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4)+
-                    rep((16+6+1)/(84+25),4), ## apr
-                  rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+
-                    rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4)+
-                    rep((16+6+1)/(84+25),4)+rep((4+1)/(81+25),4)) ## may
+                  rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4), ## feb
+                  rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4), ## mar
+                  rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4)+rep((16+6+1)/(84+25),4), ## apr
+                  rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4)+rep((16+6+1)/(84+25),4)+rep((4+1)/(81+25),4)) ## may
 
 prop_mod_Acte
 
@@ -950,12 +745,9 @@ prop_mod_Sumi = 1 - c(rep(0,10),##aug & sep & oct
                       rep(4/153,4),#nov
                       rep(4/153,4)+rep((4+4)/(144+113),4),#dec
                       rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4),#jan
-                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+
-                        rep((2+1)/(138+88+75),4),#feb
-                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+
-                        rep((2+1)/(138+88+75),4)+rep((2+1)/(137+86+75),4),#mar
-                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+
-                        rep((2+1)/(138+88+75),4)+rep((2+1)/(137+86+75),4)+rep(0,8)#apr-may
+                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4),#feb
+                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4)+rep((2+1)/(137+86+75),4),#mar
+                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4)+rep((2+1)/(137+86+75),4)+rep(0,8)#apr-may
 )
 true_cover_irs_Sumi = rep(prop_mod_Sumi*prop_houses_sprayed_WeeklyB,each=7)
 
@@ -963,7 +755,6 @@ true_cover_irs_Sumi = rep(prop_mod_Sumi*prop_houses_sprayed_WeeklyB,each=7)
 irs_cov_no_loss_Sumi = rep(0.97,30*8)
 irs_cov_Sumi = true_cover_irs_Sumi
 
-## Figure 3D main manuscript
 plot(irs_cov_no_loss_Acte[1:240] ~ time[1:240],ylab = "Community IRS cover (%)",
      ylim=c(0,1),col="black",pch="",
      main = "",cex.main=1.2,xlim=c(1,240),xaxt="n",
@@ -979,6 +770,9 @@ lines(irs_cov_no_loss_Sumi[1:240] ~ c(time[1:240]+1),lty=1,lwd=2,col = "aquamari
 lines(irs_cov_Sumi[1:240] ~ time[1:240],lty=3,lwd=2,col = "aquamarine3")
 
 cov1A = cov1S = cov2A = cov2S = array(dim=c(240,4))
+
+# itn_cov_Acte = 0.52
+# itn_cov_Sumi = 0.73
 
 ## Table 1 data
 matu_net_cov = c(27.9,  ## nov
@@ -1046,6 +840,33 @@ cov2S[,2] = itn_cov_Sumi[1:240] ## ITN only
 cov2S[,3] = irs_cov_Sumi[1:240] ## IRS only
 cov2S[,4] = itn_cov_Sumi[1:240]*irs_cov_Sumi[1:240] ## both interventions
 
+# plot(cov1[,1] ~ time,ylim=c(0,1),pch="",
+#      ylab = "Intervention use (%)",
+#      col="black",
+#      main = "",cex.main=1.2,xlim=c(1,365),xaxt="n",
+#      xlab="Time in days",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
+# axis(2,las=2,at=seq(0,1,0.2),labels=seq(0,100,20),cex.lab=1.4,cex.axis=1.4)
+# axis(1,at=seq(0,365,120),cex.lab=1.4,cex.axis=1.4)
+# 
+# colsd=c("grey","purple","aquamarine3","blue")
+# for(i in 1:3){
+#   lines(cov1[,i] ~ time,col=colsd[i])
+#   lines(cov2[,i] ~ time,col=colsd[i],lty=2)
+# }
+# 
+## Entomological model parameters to estimate 
+
+Q0 = 0.92  ## this is anthropophagy - we can use human blood index
+chi = 0.86 ## this is endophily (pi_i)
+
+fv0 = 0.333 ## biting rate 1 bite every 3 days
+tau1 = 0.69 ## duration of host seeking, assumed to be constant between species (delta_10, altered to delta_1 when interventions used)
+tau2 = 1/fv0-tau1  ## indoor feeding endophagy (delta_2)
+av0 = Q0*fv0
+mu0 = 0.132 ## background mortality from external sources
+p10 = exp(-mu0*tau1) ## 
+p2 = exp(-mu0*tau2)  ## probability of surviving resting period in absence of intervntion
+
 
 ## These are the adjusted w, z, when coverage is changing
 ## so these are the intervention coverages
@@ -1063,6 +884,12 @@ whi2A=cov2A*w_Acte[1:240,]
 
 zhi2S=cov2S*z_Sumi[1:240,]
 whi2S=cov2S*w_Sumi[1:240,]
+
+# zhi1[,4]=cov1[,2]*z[,2] * (1 - cov1[,3]*z[,3]) + cov1[,3]*z[,3]
+# zhi2[,4]=cov2[,2]*z[,2] * (1 - cov2[,3]*z[,3]) + cov2[,3]*z[,3]
+# 
+# whi1[,4]=cov1[,2]*w[,2] * (1 - cov1[,3]*w[,3]) + cov1[,3]*w[,3]
+# whi2[,4]=cov2[,2]*w[,2] * (1 - cov2[,3]*w[,3]) + cov2[,3]*w[,3]
 
 zbar1A = wbar1A = zbar2A = wbar2A = array(dim=c(240,4)) 
 zbar1S = wbar1S = zbar2S = wbar2S = array(dim=c(240,4)) 
@@ -1097,6 +924,20 @@ fR2S = 1 / ((tau1/(1 - zbar2S)) + tau2)
 mu2S = -fR2S*log((wbar2S*p10/(1 - zbar2S*p10))*p2) 
 Q2S = 1 - (1-Q0)/wbar2S
 
+# plot(mu1[,1] ~ time[1:180],ylim=c(0,1),pch="",
+#      ylab = "Intervention induced mortality",
+#      col="black",
+#      main = "",cex.main=1.2,xlim=c(1,365),xaxt="n",
+#      xlab="Time in days",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
+# axis(2,las=2,at=seq(0,2.5,0.5),cex.lab=1.4,cex.axis=1.4)
+# axis(1,at=seq(0,365,120),cex.lab=1.4,cex.axis=1.4)
+# 
+# colsd=c("grey","purple","aquamarine3","blue")
+# 
+# for(i in 1:4){ 
+#   lines(mu1[,i] ~ time[1:180],col=colsd[i],lty=1,lwd=2)
+#   lines(mu2[,i] ~ time[1:180],col=colsd[i],lty=2,lwd=2)
+#   }
 
 ## Rate at which a person in the popn is bitten by mosquitoes is
 lambda1A = lambda2A = array(dim = c(240,4))
@@ -1110,8 +951,27 @@ for(i in 1:4){
 }
 
 
+# plot(lambda1A[,1] ~ time[1:180],ylim=c(0,2.5),pch="",
+#      ylab = "Entomological innoculation rate",
+#      col="black",
+#      main = "",cex.main=1.2,xlim=c(1,180),xaxt="n",
+#      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
+# axis(2,las=2,at=seq(0,2.5,0.5),cex.lab=1.4,cex.axis=1.4)
+# axis(1,at=seq(0,180,30),labels=seq(0,6,1),cex.lab=1.4,cex.axis=1.4)
+# 
+# colsd=c("grey","purple","aquamarine3","blue")
+# ltyd = c(1,2,1,2)
+# # for(i in 3:4){
+# #   lines(lambda1A[,i] ~ time[1:180],col="darkblue",lty = ltyd[i],lwd=1)
+# #   lines(lambda1S[,i] ~ time[1:180],col="aquamarine3",lty=ltyd[i],lwd=1)
+# # }
+# for(i in 3:4){
+#   lines(lambda2A[,i] ~ time[1:180],col="darkblue",lty=ltyd[i],lwd=2)
+#   lines(lambda2S[,i] ~ time[1:180],col="aquamarine3",lty=ltyd[i],lwd=2)
+#   
+# }
 
-## Figure 3E main manuscript
+## Actually we want to look at the comparison so:
 plot(lambda1A[,1] ~ time[1:240],ylim=c(0,2.5),pch="",
      ylab = "Mosquito bites received per person per day",
      col="black",
@@ -1137,10 +997,26 @@ for(i in 3){
   
 }
 
+# for(i in 1:4) lines(yy[1:180,i]~time[1:180],col=colsd[i],lwd=2)
+# for(i in 1:4) lines(fR1[,i]~time[1:180],col=colsd[i],lwd=2)
+# for(i in 1:4) lines(Q1[,i]~time[1:180],col=colsd[i],lwd=2,lty=2)
+# 
+# legend("topleft",legend = c("Matutuine (assuming no ITN)","Boane (assuming no ITN)",
+#                             "Matutuine (ITN use 52%)","Boane (ITN use 73%)","IRS no household modification", "IRS with household modification"),
+#        col = c("darkblue","aquamarine3","darkblue","aquamarine3","black","black"),lwd = c(1,1,2,2,2,2), lty=c(1,1,1,1,1,2),cex=1.2,bty="n")
+
 ## Additional infectious bites per person per year 
 Estimated_added_EIR = array(dim=c(240,2))
 Estimated_added_EIR[,1] = (lambda2A[,4] - lambda1A[,4])
 Estimated_added_EIR[,2] = (lambda2S[,4] - lambda1S[,4])
+
+c(sum(Estimated_added_EIR[1:30,1])/30,sum(Estimated_added_EIR[31:60,1])/30,
+  sum(Estimated_added_EIR[61:90,1])/30,sum(Estimated_added_EIR[91:120,1])/30,
+  sum(Estimated_added_EIR[121:150,1])/30,sum(Estimated_added_EIR[151:180,1])/30)
+
+c(sum(Estimated_added_EIR[1:30,2])/30,sum(Estimated_added_EIR[31:60,2])/30,
+  sum(Estimated_added_EIR[61:90,2])/30,sum(Estimated_added_EIR[91:120,2])/30,
+  sum(Estimated_added_EIR[121:150,2])/30,sum(Estimated_added_EIR[151:180,2])/30)
 
 
 ## Additional infectious bites per person per year 
@@ -1167,7 +1043,7 @@ mean(Estimated_propn_increase_EIR[166:195,2])##feb
 mean(Estimated_propn_increase_EIR[196:225,2])##mar
 mean(Estimated_propn_increase_EIR[226:240,2])##part april
 
-## Figure 3F main manuscript
+
 plot(Estimated_propn_increase_EIR[,1] ~ time[1:240],ylim=c(0,1),pch="",
      ylab = "",
      col="black",
@@ -1199,18 +1075,24 @@ for(i in 1:2){
 }
 
 
+par(xpd=NA,cex = 1.11)
+# 
+# text(x = -585, y = 2.75,"(A)")
+# text(x = -315, y = 2.75,"(B)")
+# text(x = -50, y = 2.75,"(C)")
+# 
+# text(x = -585, y = 1.1,"(D)")
+# text(x = -315, y = 1.1,"(E)")
+# text(x = -50, y = 1.1,"(F)")
+# 
 
-```
+text(x = -650, y = 2.65,"(A)")
+text(x = -340, y = 2.65,"(B)")
+text(x = -38, y = 2.65,"(C)")
 
+text(x = -650, y = 1.2,"(D)")
+text(x = -340, y = 1.2,"(E)")
+text(x = -38, y = 1.2,"(F)")
 
-## References
+## 1300 width and 750 height
 
-1. Sherrard-Smith E, Winskill P, Corbel V, Pennetier C, Djénontin A, Moore S, Richardson JH, Müller P, Edi C, Protopopoff N, Oxborough R, Agossa F, N'Guessan R, Rowland M, Churcher TS. 2018. Systematic review of indoor residual spray efficacy and effectiveness against Plasmodium falciparum in Africa. Nat Communs.9. 4982. DOI: 10.1038/s41467-018-07357-w
-
-2. Churcher TS, Lissenden N, Griffin JT, Worrall E, Ranson H. 2016.The impact of pyrethroid resistance on the efficacy and effectiveness of bednets for malaria control in Africa. ELife 5. DOI: 10.7554/eLife.16090
-
-3. Le Menach A, Takala S, McKenzie FE, Perisse A, Harris A, Flahault A, Smith DL. 2007. An elaborated feeding cycle model for reductions in vectorial capacity of night-biting mosquitoes by insecticide-treated nets. Malar J. 6. 10
-
-4. Griffin JT, Hollingsworth D, Okell LC, Churcher TS, White M, Hinsley W, Bousema T, Drakeley CJ, Ferguson NM, Basáñez M-G, Ghani AC. 2010. Reducing Plasmodium falciparum malaria transmission in Africa: a model-based evaluation of intervention strategies. PLoS Med. 7. e1000324. DOI:10.1371/journal.pmed.1000324
-
-5. Walker PGT, Griffin JT, Ferguson NM, Ghani AC. 2016. Estimating the most efficient allocation of interventions to achieve reductions in Plasmodium falciparum malaria burden and transmission in Africa: a modelling study. Lancet Global Health. 4. e474-84. DOI: 10.1016/S2214-109X(16)30073-0  

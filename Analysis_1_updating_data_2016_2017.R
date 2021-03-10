@@ -695,7 +695,7 @@ ERG_r_ITN0;ERG_d_ITN0;itn_half_life
 
 itn_loss = log(2)/itn_half_life
 ITN_interval=3*365
-time=1:365
+time=1:2000
 ## decay in efficacy of net over time
 ## **** this is wrong need to work this out
 ITN_decay = exp(-(time/ITN_interval)*itn_loss)
@@ -705,4 +705,4 @@ d_ITN = ERG_d_ITN0 * ITN_decay 	 		## insecticide mortality rate
 r_ITN = r_ITN_min + (ERG_r_ITN0 - r_ITN_min)*ITN_decay 
 s_ITN = 1 - d_ITN - r_ITN			## successful protected human biting 
 
-d_ITN;r_ITN;s_ITN
+# d_ITN;r_ITN;s_ITN
