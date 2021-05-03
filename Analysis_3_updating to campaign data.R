@@ -126,9 +126,9 @@ for(i in 1:180){
 }
 
 w_Acte = 
-  w_Acte1 * 129/(129+88+27+1) +
-  w_Acte2 *  88/(129+88+27+1) +
-  w_Acte3 *  27/(129+88+27+1) 
+  w_Acte1 * 129/(129+88+27) +
+  w_Acte2 *  88/(129+88+27) +
+  w_Acte3 *  27/(129+88+27) 
   
 
 
@@ -150,9 +150,9 @@ for(i in 1:180){
 }
 
 w_Sumi = 
-  w_Sumi1 * 113/(113+153+76+2) +
-  w_Sumi2 * 153/(113+153+76+2) +
-  w_Sumi3 *  76/(113+153+76+2) 
+  w_Sumi1 * 113/(113+153+76) +
+  w_Sumi2 * 153/(113+153+76) +
+  w_Sumi3 *  76/(113+153+76) 
 
 
 # par(mfrow = c(2,3))
@@ -179,9 +179,9 @@ for(i in 1:180){
 }
 
 yy_Acte[,3:4] = 
-  yy_Acte1[,3:4] * 129/(129+88+27+1) +
-  yy_Acte2[,3:4] *  88/(129+88+27+1) +
-  yy_Acte3[,3:4] *  27/(129+88+27+1) 
+  yy_Acte1[,3:4] * 129/(129+88+27) +
+  yy_Acte2[,3:4] *  88/(129+88+27) +
+  yy_Acte3[,3:4] *  27/(129+88+27) 
 
 
 
@@ -200,9 +200,9 @@ for(i in 1:180){
 }
 
 yy_Sumi[,3:4] = 
-  yy_Sumi1[,3:4] * 113/(113+153+76+2) +
-  yy_Sumi2[,3:4] * 153/(113+153+76+2) +
-  yy_Sumi3[,3:4] *  76/(113+153+76+2) 
+  yy_Sumi1[,3:4] * 113/(113+153+76) +
+  yy_Sumi2[,3:4] * 153/(113+153+76) +
+  yy_Sumi3[,3:4] *  76/(113+153+76) 
 
 ## supplementary figure 1a
 plot(yy_Acte[,1] ~ time[1:180],ylim=c(0,1),pch="",
@@ -268,14 +268,14 @@ for(i in 1:180){
 }
 
 z_Acte[,2:4] = 
-  z_Acte1[,2:4] * 129/(129+88+27+1) +
-  z_Acte2[,2:4] *  88/(129+88+27+1) +
-  z_Acte3[,2:4] *  27/(129+88+27+1) 
+  z_Acte1[,2:4] * 129/(129+88+27) +
+  z_Acte2[,2:4] *  88/(129+88+27) +
+  z_Acte3[,2:4] *  27/(129+88+27) 
 
 z_Sumi[,2:4] = 
-  z_Sumi1[,2:4] * 113/(113+153+76+2) +
-  z_Sumi2[,2:4] * 153/(113+153+76+2) +
-  z_Sumi3[,2:4] *  76/(113+153+76+2) 
+  z_Sumi1[,2:4] * 113/(113+153+76) +
+  z_Sumi2[,2:4] * 153/(113+153+76) +
+  z_Sumi3[,2:4] *  76/(113+153+76) 
 
 
 ## supplementary figure 1c
@@ -298,25 +298,61 @@ for(i in 3){
 ## as well as altered cover over time from 3 month time line of campaign
 
 modif_months = 1:6
-prop_mod_Acte = 1 - c(13.1,8.8,13.7,12.6,8.6,8.3)/100
-true_cover_irs_Acte = c(prop_mod_Acte[1]*129/(129+88+27+1),
-                        prop_mod_Acte[1]*(129+88)/(129+88+27+1)*prop_mod_Acte[2],
-                        prop_mod_Acte[1]*(129+88+27)/(129+88+27+1)*prop_mod_Acte[2]*prop_mod_Acte[3],
-                        prop_mod_Acte[1]*(129+88+27)/(129+88+27+1)*prop_mod_Acte[2]*prop_mod_Acte[3]*prop_mod_Acte[4],
-                        prop_mod_Acte[1]*(129+88+27)/(129+88+27+1)*prop_mod_Acte[2]*prop_mod_Acte[3]*prop_mod_Acte[4]*prop_mod_Acte[5],
-                        prop_mod_Acte[1]*(129+88+27)/(129+88+27+1)*prop_mod_Acte[2]*prop_mod_Acte[3]*prop_mod_Acte[4]*prop_mod_Acte[5]*prop_mod_Acte[6])
+# prop_mod_Acte = 1 - c(13.1,8.8,13.7,12.6,8.6,8.3)/100
+# true_cover_irs_Acte = c(prop_mod_Acte[1]*129/(129+88+27+1),
+#                         prop_mod_Acte[1]*(129+88)/(129+88+27+1)*prop_mod_Acte[2],
+#                         prop_mod_Acte[1]*(129+88+27)/(129+88+27+1)*prop_mod_Acte[2]*prop_mod_Acte[3],
+#                         prop_mod_Acte[1]*(129+88+27)/(129+88+27+1)*prop_mod_Acte[2]*prop_mod_Acte[3]*prop_mod_Acte[4],
+#                         prop_mod_Acte[1]*(129+88+27)/(129+88+27+1)*prop_mod_Acte[2]*prop_mod_Acte[3]*prop_mod_Acte[4]*prop_mod_Acte[5],
+#                         prop_mod_Acte[1]*(129+88+27)/(129+88+27+1)*prop_mod_Acte[2]*prop_mod_Acte[3]*prop_mod_Acte[4]*prop_mod_Acte[5]*prop_mod_Acte[6])
+
+## Accounting for modifications and added rooms in OCT cohort we have
+cover_act_october = c(0.891472868,0.776978417,0.556962025, 0.393063584,0.302702703, 0.218274112)
+## Accounting for modifications and added rooms in NOV cohort we have
+cover_act_november = c(0.863636364,0.694736842,0.538461538,0.426086957,0.341269841,0.288888889)
+## Accounting for modifications and added rooms in DEC cohort we have
+cover_act_december = c(0.851851852,0.714285714,0.655172414,0.6,0.566666667,0.548387097)
+
+true_cover_irs_Acte = c(cover_act_october[1]*129/(129+88+27), ## Nov
+                        (cover_act_october[2]*129+cover_act_november[1]*88)/(129+88+27), 
+                        ## this is, the prop covered and oct spray plus those covered in nov spray out of all 
+                        (cover_act_october[3]*129+cover_act_november[2]*88+cover_act_december[1]*27)/(129+88+27),
+                        (cover_act_october[4]*129+cover_act_november[3]*88+cover_act_december[2]*27)/(129+88+27),
+                        (cover_act_october[5]*129+cover_act_november[4]*88+cover_act_december[3]*27)/(129+88+27),
+                        (cover_act_october[6]*129+cover_act_november[5]*88+cover_act_december[4]*27)/(129+88+27))
+                        
+                        
 
 #House coverage: Matutuine district 96 %
 irs_cov_no_loss_Acte = rep(0.96,30*6)
-irs_cov_Acte = rep(true_cover_irs_Acte,each=30)
+irs_cov_Acte = rep(0.96*true_cover_irs_Acte,each=30)
 
-prop_mod_Sumi = 1 - c(3.5,5,5.3,5.4,5.8,5.8)/100
-true_cover_irs_Sumi = c(113/(113+153+76+2)*prop_mod_Sumi[1],
-                        (113+153)/(113+153+76+2)*prop_mod_Sumi[1]*prop_mod_Sumi[2],
-                        (113+153+76)/(113+153+76+2)*prop_mod_Sumi[1]*prop_mod_Sumi[2]*prop_mod_Sumi[3],
-                        (113+153+76)/(113+153+76+2)*prop_mod_Sumi[1]*prop_mod_Sumi[2]*prop_mod_Sumi[3]*prop_mod_Sumi[4],
-                        (113+153+76)/(113+153+76+2)*prop_mod_Sumi[1]*prop_mod_Sumi[2]*prop_mod_Sumi[3]*prop_mod_Sumi[4]*prop_mod_Sumi[5],
-                        (113+153+76)/(113+153+76+2)*prop_mod_Sumi[1]*prop_mod_Sumi[2]*prop_mod_Sumi[3]*prop_mod_Sumi[4]*prop_mod_Sumi[5]*prop_mod_Sumi[6])
+# prop_mod_Sumi = 1 - c(3.5,5,5.3,5.4,5.8,5.8)/100
+# true_cover_irs_Sumi = c(113/(113+153+76+2)*prop_mod_Sumi[1],
+#                         (113+153)/(113+153+76+2)*prop_mod_Sumi[1]*prop_mod_Sumi[2],
+#                         (113+153+76)/(113+153+76+2)*prop_mod_Sumi[1]*prop_mod_Sumi[2]*prop_mod_Sumi[3],
+#                         (113+153+76)/(113+153+76+2)*prop_mod_Sumi[1]*prop_mod_Sumi[2]*prop_mod_Sumi[3]*prop_mod_Sumi[4],
+#                         (113+153+76)/(113+153+76+2)*prop_mod_Sumi[1]*prop_mod_Sumi[2]*prop_mod_Sumi[3]*prop_mod_Sumi[4]*prop_mod_Sumi[5],
+#                         (113+153+76)/(113+153+76+2)*prop_mod_Sumi[1]*prop_mod_Sumi[2]*prop_mod_Sumi[3]*prop_mod_Sumi[4]*prop_mod_Sumi[5]*prop_mod_Sumi[6])
+
+
+## Accounting for modifications and added rooms in OCT cohort we have
+cover_sum_october = c(0.96460177,0.956140351,0.930434783,0.922413793,0.922413793,0.914529915)
+## Accounting for modifications and added rooms in NOV cohort we have
+cover_sum_november = c(0.973856209,0.948387097,0.918238994,0.918238994,0.900621118,0.895061728)
+## Accounting for modifications and added rooms in DEC cohort we have
+cover_sum_december = c(0.960526316,0.935064935,0.909090909,0.897435897,0.897435897,0.897435897)
+
+true_cover_irs_Sumi = c(cover_sum_october[1]*113/(113+153+76), ## Nov
+                        (cover_sum_october[2]*113+cover_sum_november[1]*153)/(113+153+76), 
+                        ## this is, the prop covered and oct spray plus those covered in nov spray out of all 
+                        (cover_sum_october[3]*113+cover_sum_november[2]*153+cover_sum_december[1]*76)/(113+153+76),
+                        (cover_sum_october[4]*113+cover_sum_november[3]*153+cover_sum_december[2]*76)/(113+153+76),
+                        (cover_sum_october[5]*113+cover_sum_november[4]*153+cover_sum_december[3]*76)/(113+153+76),
+                        (cover_sum_october[6]*113+cover_sum_november[5]*153+cover_sum_december[4]*76)/(113+153+76))
+
+
+
 
 #House coverage: Boane (sumi) district 97 %, Manhica district (Palmeira) 98 % 
 irs_cov_no_loss_Sumi = rep(0.97,30*6)

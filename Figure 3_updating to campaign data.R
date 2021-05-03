@@ -48,15 +48,16 @@ jsS = 1 - sumishield_details[[2]] - sumishield_details[[3]]
 s_IRS_Sumi = ksS/k0 ##feed2
 r_IRS_Sumi = (1 - ksS/k0)*(jsS/(lsS+jsS)) ##rep2
 
-w_Acte[,1] = w_Sumi[,1] = rep(1,210) ## Probability that a mosquito bites and survives in the presence of indoor vector control
-for(i in 1:210){
+##210?
+w_Acte[,1] = w_Sumi[,1] = rep(1,180) ## Probability that a mosquito bites and survives in the presence of indoor vector control
+for(i in 1:180){
   PHI_B = PHI_B_mut
   PHI_I = PHI_I_mut
   w_Acte[i,2] = 1 - PHI_B + PHI_B*s_ITN[i+547]				 ## probability of surviving biting given that there is ITN
   w_Acte[i,3] = 1 - PHI_I + PHI_I*(1-r_IRS_Acte[i])*s_IRS_Acte[i]	##			probability of surviving biting given that there is IRS
   w_Acte[i,4] = 1 - PHI_I + PHI_B*(1-r_IRS_Acte[i])*s_ITN[i+547]*s_IRS_Acte[i] + (PHI_I - PHI_B)*(1-r_IRS_Acte[i])*s_IRS_Acte[i] ## probability of surviving biting given that there is ITN & IRS
 }
-for(i in 1:210){
+for(i in 1:180){
   PHI_B = PHI_B_boa
   PHI_I = PHI_I_boa
   w_Sumi[i,2] = 1 - PHI_B + PHI_B*s_ITN[i+547]				 ## probability of surviving biting given that there is ITN
@@ -363,9 +364,8 @@ for(i in 1:365){
   yy_Sumi[i,4] = sum(yy_Sumi1[i,,4] * prop_this_weekB)
 }
 
-
 ## supplementary figure 1a
-plot(yy_Acte[,1] ~ time,ylim=c(0,1),pch="",
+plot(yy_Acte[,1] ~ time[1:365],ylim=c(0,1),pch="",
      ylab = "Probability mosquito bites",
      col="black",
      main = "",cex.main=1.2,xlim=c(1,240),xaxt="n",
@@ -383,7 +383,7 @@ legend("bottomleft",legend = c("Actellic 300CS","SumiShield"),
        col = c("darkblue","aquamarine3"),lwd = 2, lty=c(1,1),cex=1.2,bty="n")
 
 ## supplementary figure 1b
-plot(w_Acte[,1] ~ time,ylim=c(0,1),pch="",
+plot(w_Acte[,1] ~ time[1:365],ylim=c(0,1),pch="",
      ylab = "Probability mosquito bites and survives",
      col="black",
      main = "",cex.main=1.2,xlim=c(1,240),xaxt="n",
@@ -425,7 +425,7 @@ for(i in 1:365){
 
 
 ## supplementary figure 1c
-plot(z_Acte[,1] ~ time,ylim=c(0,1),pch="",
+plot(z_Acte[,1] ~ time[1:365],ylim=c(0,1),pch="",
      ylab = "Probability mosquito is repelled",
      col="black",
      main = "",cex.main=1.2,xlim=c(1,240),xaxt="n",

@@ -113,34 +113,66 @@ for(i in 1:240){
 ## waning usage of IRS with time
 
 ## from Table 1 main manuscript 
-prop_mod_Acte = 1 -  c(rep(0,10), ## august &  & oct
-                       rep(14/129,4), ## nov
-                       rep(14/129,4)+rep((12+7)/(117+88),4), ## dec
-                       rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4), ## jan
-                       rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4), ## feb
-                       rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4), ## mar
-                       rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4)+rep((16+6+1)/(84+25),4), ## apr
-                       rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4)+rep((16+6+1)/(84+25),4)+rep((4+1)/(81+25),4)) ## may
+# prop_mod_Acte = 1 -  c(rep(0,10), ## august &  & oct
+#                        rep(14/129,4), ## nov
+#                        rep(14/129,4)+rep((12+7)/(117+88),4), ## dec
+#                        rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4), ## jan
+#                        rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4), ## feb
+#                        rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4), ## mar
+#                        rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4)+rep((16+6+1)/(84+25),4), ## apr
+#                        rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4)+rep((16+6+1)/(84+25),4)+rep((4+1)/(81+25),4)) ## may
+# 
+# prop_mod_Acte
+# 
+# 
+# true_cover_irs_Acte =  rep(prop_mod_Acte*prop_houses_sprayed_WeeklyM,each=7)
+# 
+# #House coverage: Matutuine district 96 %
+# irs_cov_no_loss_Acte = rep(0.96,30*8)
+# irs_cov_Acte = rep(prop_mod_Acte*0.96,each=7)
+# 
+# prop_mod_Sumi = 1 - c(rep(0,10),##aug & sep & oct
+#                       rep(4/153,4),#nov
+#                       rep(4/153,4)+rep((4+4)/(144+113),4),#dec
+#                       rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4),#jan
+#                       rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4),#feb
+#                       rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4)+rep((2+1)/(137+86+75),4),#mar
+#                       rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4)+rep((2+1)/(137+86+75),4)+rep(0,8)#apr-may
+# )
+# true_cover_irs_Sumi = rep(prop_mod_Sumi*prop_houses_sprayed_WeeklyB,each=7)
+# irs_cov_Sumi = rep(prop_mod_Sumi*0.97,each=7)
 
-prop_mod_Acte
+prop_mod_Acte_temp = c(0.891472868,0.81212081,0.639282555,0.481047262,0.386204738,0.304873387,0.166894353)
 
+##And sorted for weeks:
+prop_mod_Acte = c(rep(1,10),rep(prop_mod_Acte_temp,each=4))## for time series of spray campaign
 
-true_cover_irs_Acte =  rep(prop_mod_Acte*prop_houses_sprayed_WeeklyM,each=7)
+true_cover_irs_Acte =  rep(prop_mod_Acte*0.96,each=7)
 
 #House coverage: Matutuine district 96 %
 irs_cov_no_loss_Acte = rep(0.96,30*8)
-irs_cov_Acte = rep(prop_mod_Acte*0.96,each=7)
+irs_cov_Acte = true_cover_irs_Acte
 
-prop_mod_Sumi = 1 - c(rep(0,10),##aug & sep & oct
-                      rep(4/153,4),#nov
-                      rep(4/153,4)+rep((4+4)/(144+113),4),#dec
-                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4),#jan
-                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4),#feb
-                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4)+rep((2+1)/(137+86+75),4),#mar
-                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4)+rep((2+1)/(137+86+75),4)+rep(0,8)#apr-may
-)
+# prop_mod_Sumi = 1 - c(rep(0,10),##aug & sep & oct
+#                       rep(4/153,4),#nov
+#                       rep(4/153,4)+rep((4+4)/(144+113),4),#dec
+#                       rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4),#jan
+#                       rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4),#feb
+#                       rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4)+rep((2+1)/(137+86+75),4),#mar
+#                       rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4)+rep((2+1)/(137+86+75),4)+rep(0,8)#apr-may
+# )
+
+prop_mod_Sumi_temp = c(0.96460177,0.966330299,0.945153088,0.923357485,0.917585479,0.904508888,0.895619142)
+
+##And sorted for weeks:
+prop_mod_Sumi = c(rep(1,10),rep(prop_mod_Sumi_temp,each=4))## for time series of spray campaign
+
 true_cover_irs_Sumi = rep(prop_mod_Sumi*prop_houses_sprayed_WeeklyB,each=7)
+
+#House coverage: Boane (sumi) district 97 %, Manhica district (Palmeira) 98 % 
+irs_cov_no_loss_Sumi = rep(0.97,30*8)
 irs_cov_Sumi = rep(prop_mod_Sumi*0.97,each=7)
+
 time = 1:365
 plot(irs_cov_no_loss_Acte[61:240] ~ time[61:240],ylab = "Community IRS cover (%)",
      ylim=c(0,1),col="black",pch="",
@@ -359,12 +391,12 @@ for(i in 3){
 # for(i in 1:4) lines(fR1[,i]~time[1:180],col=colsd[i],lwd=2)
 # for(i in 1:4) lines(Q1[,i]~time[1:180],col=colsd[i],lwd=2,lty=2)
 
-legend("topleft",legend = c("Matutuine (ITN use)",
-                            "Boane (ITN use)",
-                            "IRS no modification, no ITN",
-                            "IRS with household modification, no ITN",
-                            "IRS no modification, with ITN use",
-                            "IRS with household modification, with ITN use"),
+legend("topleft",legend = c("Matutuine (LLIN use)",
+                            "Boane (LLIN use)",
+                            "IRS no modification, no LLIN",
+                            "IRS with household modification, no LLIN",
+                            "IRS no modification, with LLIN use",
+                            "IRS with household modification, with LLIN use"),
        col = c("darkblue","aquamarine3","black","black","black","black"),
        lwd = 1,pch=c(15,15,NA,NA,NA,NA), 
        lty=c(NA,NA,1,3,2,4),cex=1.2,bty="n")
@@ -420,9 +452,9 @@ plot(Estimated_propn_increase_EIR[61:240,1] ~ time[61:240],ylim=c(0,1),pch="",
      col="black",
      main = "",cex.main=1.2,xlim=c(1,240),xaxt="n",
      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
-mtext(side=2, line =4,
+mtext(side=2, line =4.3,
       "Relative increase in daily bites ")
-mtext(side=2, line =2.7, "due to modifications (%)")
+mtext(side=2, line =3, "due to modifications (%)")
 axis(2,las=2,at=seq(0,1,0.2),label=seq(0,100,20),cex.lab=1.4,cex.axis=1.4)
 
 axis(1,at=seq(0,230,30)+15,labels = c("Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr"),cex.axis = 1.4)
@@ -454,8 +486,8 @@ mean(Estimated_propn_increase_EIR[123:153,1])
 mean(Estimated_propn_increase_EIR[154:180,1])
 
 
-legend("topleft",legend = c("Matutuine (assuming no ITN)","Boane (assuming no ITN)",
-                            "Matutuine (ITN use)","Boane (ITN use)"),
+legend("topleft",legend = c("Matutuine (assuming no LLIN)","Boane (assuming no LLIN)",
+                            "Matutuine (LLIN use)","Boane (LLIN use)"),
        col = c("darkblue","aquamarine3","darkblue","aquamarine3"),lwd = c(2,2,1,1), lty=c(1,1,2,2),cex=1.2,bty="n")
 
 
@@ -478,7 +510,7 @@ legend("topleft",legend = c("Matutuine (assuming no ITN)","Boane (assuming no IT
 ## 27/(129+88+27+1) is 11.02% max protection Jan (35.92% - modif 1 month old, 52% - modif 2 month old)
 
 
-## derived ITN/IRS quantities
+## derived LLIN/IRS quantities
 ## prob bites and survives
 
 w_Acte = yy_Acte = z_Acte = w_Sumi = yy_Sumi = z_Sumi = array(dim=c(365,4)) 
@@ -490,11 +522,11 @@ w_Acte1 = yy_Acte1 = z_Acte1 = w_Sumi1 = yy_Sumi1 = z_Sumi1 = array(dim=c(365,18
 # w_Acte3 = yy_Acte3 = z_Acte3 = w_Sumi3 = yy_Sumi3 = z_Sumi3 = array(dim=c(180,4)) 
 # 
 ## column 1 will be the effect if there is no intervention
-## column 2 is with ITNs only
+## column 2 is with LLINs only
 ## column 3 is with IRS only no loss in coverage
 ## column 4 is with IRS only loss in coverage
-## column 5 is ITN + IRS no loss
-## column 6 is ITN + IRS loss
+## column 5 is LLIN + IRS no loss
+## column 6 is LLIN + IRS loss
 
 #############################
 ## 
@@ -723,17 +755,35 @@ prop_houses_sprayed_WeeklyM = 0.96*c(0.065358837,	0.193716785,## August
 
 
 ## from Table 1 main manuscript 
-prop_mod_Acte = 1 -  c(rep(0,10), ## august &  & oct
-                  rep(14/129,4), ## nov
-                  rep(14/129,4)+rep((12+7)/(117+88),4), ## dec
-                  rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4), ## jan
-                  rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4), ## feb
-                  rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4), ## mar
-                  rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4)+rep((16+6+1)/(84+25),4), ## apr
-                  rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4)+rep((16+6+1)/(84+25),4)+rep((4+1)/(81+25),4)) ## may
 
-prop_mod_Acte
+## Accounting for modifications and added rooms in OCT cohort we have
+cov_a_oct = c(0.891472868,0.776978417,0.556962025, 0.393063584,0.302702703, 0.218274112)
+## Accounting for modifications and added rooms in NOV cohort we have
+cov_a_nov = c(0.863636364,0.694736842,0.538461538,0.426086957,0.341269841,0.288888889)
+## Accounting for modifications and added rooms in DEC cohort we have
+cov_a_dec = c(0.851851852,0.714285714,0.655172414,0.6,0.566666667,0.548387097)
 
+## Accounting for modifications and added rooms in OCT cohort we have
+cov_s_oct = c(0.96460177,0.956140351,0.930434783,0.922413793,0.922413793,0.914529915)
+## Accounting for modifications and added rooms in NOV cohort we have
+cov_s_nov = c(0.973856209,0.948387097,0.918238994,0.918238994,0.900621118,0.895061728)
+## Accounting for modifications and added rooms in DEC cohort we have
+cov_s_dec = c(0.960526316,0.935064935,0.909090909,0.897435897,0.897435897,0.897435897)
+
+## And weighting for the proportion of people represented in each survey 129:88:27 for Mut and 113:153:76 for Boane
+
+# prop_mod_Acte = 1 - c(rep(0,10), ## august &  sep & oct
+#                   rep(14/129,4), ## nov
+#                   rep(14/129,4)+rep((12+7)/(117+88),4), ## dec
+#                   rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4), ## jan
+#                   rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4), ## feb
+#                   rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4), ## mar
+#                   rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4)+rep((16+6+1)/(84+25),4), ## apr
+#                   rep(14/129,4)+rep((12+7)/(117+88),4)+rep((20+10+4)/(117+86+27),4)+rep((20+10+3)/(116+85+25),4)+rep((12+7+1)/(115+85+25),4)+rep((16+6+1)/(84+25),4)+rep((4+1)/(81+25),4)) ## may
+prop_mod_Acte_temp = c(0.891472868,0.81212081,0.639282555,0.481047262,0.386204738,0.304873387,0.166894353)
+
+##And sorted for weeks:
+prop_mod_Acte = c(rep(1,10),rep(prop_mod_Acte_temp,each=4))## for time series of spray campaign
 
 true_cover_irs_Acte =  rep(prop_mod_Acte*prop_houses_sprayed_WeeklyM,each=7)
 
@@ -741,14 +791,20 @@ true_cover_irs_Acte =  rep(prop_mod_Acte*prop_houses_sprayed_WeeklyM,each=7)
 irs_cov_no_loss_Acte = rep(0.96,30*8)
 irs_cov_Acte = true_cover_irs_Acte
 
-prop_mod_Sumi = 1 - c(rep(0,10),##aug & sep & oct
-                      rep(4/153,4),#nov
-                      rep(4/153,4)+rep((4+4)/(144+113),4),#dec
-                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4),#jan
-                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4),#feb
-                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4)+rep((2+1)/(137+86+75),4),#mar
-                      rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4)+rep((2+1)/(137+86+75),4)+rep(0,8)#apr-may
-)
+# prop_mod_Sumi = 1 - c(rep(0,10),##aug & sep & oct
+#                       rep(4/153,4),#nov
+#                       rep(4/153,4)+rep((4+4)/(144+113),4),#dec
+#                       rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4),#jan
+#                       rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4),#feb
+#                       rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4)+rep((2+1)/(137+86+75),4),#mar
+#                       rep(4/153,4)+rep((4+4)/(144+113),4)+rep((2+0+3)/(141+89+76),4)+rep((2+1)/(138+88+75),4)+rep((2+1)/(137+86+75),4)+rep(0,8)#apr-may
+# )
+
+prop_mod_Sumi_temp = c(0.96460177,0.966330299,0.945153088,0.923357485,0.917585479,0.904508888,0.895619142)
+
+##And sorted for weeks:
+prop_mod_Sumi = c(rep(1,10),rep(prop_mod_Sumi_temp,each=4))## for time series of spray campaign
+
 true_cover_irs_Sumi = rep(prop_mod_Sumi*prop_houses_sprayed_WeeklyB,each=7)
 
 #House coverage: Boane (sumi) district 97 %, Manhica district (Palmeira) 98 % 
@@ -763,11 +819,11 @@ axis(2,las=2,at=seq(0,1,0.2),labels=seq(0,100,20),cex.lab=1.4,cex.axis=1.4)
 axis(1,at=seq(0,230,30)+15,labels = c("Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr"),cex.axis = 1.4)
 
 
-lines(irs_cov_no_loss_Acte[1:240] ~ time[1:240],lty=1,lwd=2,col = "darkblue")
-lines(irs_cov_Acte[1:240] ~ time[1:240],lty=3,lwd=2,col = "darkblue")
+lines(irs_cov_no_loss_Acte[61:240] ~ time[61:240],lty=1,lwd=2,col = "darkblue")
+lines(irs_cov_Acte[61:240] ~ time[61:240],lty=3,lwd=2,col = "darkblue")
 
-lines(irs_cov_no_loss_Sumi[1:240] ~ c(time[1:240]+1),lty=1,lwd=2,col = "aquamarine3")
-lines(irs_cov_Sumi[1:240] ~ time[1:240],lty=3,lwd=2,col = "aquamarine3")
+lines(irs_cov_no_loss_Sumi[61:240] ~ c(time[61:240]+1),lty=1,lwd=2,col = "aquamarine3")
+lines(irs_cov_Sumi[61:240] ~ time[61:240],lty=3,lwd=2,col = "aquamarine3")
 
 cov1A = cov1S = cov2A = cov2S = array(dim=c(240,4))
 
@@ -981,19 +1037,19 @@ axis(2,las=2,at=seq(0,2.5,0.5),cex.lab=1.4,cex.axis=1.4)
 axis(1,at=seq(0,230,30)+15,labels = c("Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr"),cex.axis = 1.4)
 
 for(i in 4){
-  lines(lambda1A[1:235,i] ~ time[1:235],col="darkblue",lty=2,lwd=2)
-  lines(lambda2A[1:235,i] ~ time[1:235],col="darkblue",lty=4,lwd=2)
+  lines(lambda1A[61:235,i] ~ time[61:235],col="darkblue",lty=2,lwd=2)
+  lines(lambda2A[61:235,i] ~ time[61:235],col="darkblue",lty=4,lwd=2)
   
-  lines(lambda1S[1:235,i] ~ time[1:235],col="aquamarine3",lty=2,lwd=2)
-  lines(lambda2S[1:235,i] ~ time[1:235],col="aquamarine3",lty=4,lwd=2)
+  lines(lambda1S[61:235,i] ~ time[61:235],col="aquamarine3",lty=2,lwd=2)
+  lines(lambda2S[61:235,i] ~ time[61:235],col="aquamarine3",lty=4,lwd=2)
   
 }
 for(i in 3){
-  lines(lambda1A[1:235,i] ~ time[1:235],col="darkblue",lty=1,lwd=1)
-  lines(lambda2A[1:235,i] ~ time[1:235],col="darkblue",lty=3,lwd=1)
+  lines(lambda1A[61:235,i] ~ time[61:235],col="darkblue",lty=1,lwd=1)
+  lines(lambda2A[61:235,i] ~ time[61:235],col="darkblue",lty=3,lwd=1)
   
-  lines(lambda1S[1:235,i] ~ time[1:235],col="aquamarine3",lty=1,lwd=1)
-  lines(lambda2S[1:235,i] ~ time[1:235],col="aquamarine3",lty=3,lwd=1)
+  lines(lambda1S[61:235,i] ~ time[61:235],col="aquamarine3",lty=1,lwd=1)
+  lines(lambda2S[61:235,i] ~ time[61:235],col="aquamarine3",lty=3,lwd=1)
   
 }
 
@@ -1051,13 +1107,13 @@ plot(Estimated_propn_increase_EIR[,1] ~ time[1:240],ylim=c(0,1),pch="",
      xlab="Time in months",yaxt="n",cex.lab=1.4,cex.axis=1.4,cex=1.4)
 axis(2,las=2,at=seq(0,1,0.2),labels=seq(0,100,20),cex.lab=1.4,cex.axis=1.4)
 axis(1,at=seq(0,230,30)+15,labels = c("Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr"),cex.axis = 1.4)
-mtext(side=2, line =4,
+mtext(side=2, line =4.3,
       "Relative increase in daily bites")
-mtext(side=2, line =2.7, "due to spray campaign & modifications (%)")
+mtext(side=2, line =3, "due to spray campaign & modifications (%)")
 
 colsd = c("darkblue","aquamarine3")
 for(i in 1:2){
-  lines(Estimated_propn_increase_EIR[,i] ~ time[1:240],col=colsd[i],lty=2,lwd=2)
+  lines(Estimated_propn_increase_EIR[61:240,i] ~ time[61:240],col=colsd[i],lty=2,lwd=2)
 }
 
 
@@ -1071,7 +1127,7 @@ Estimated_propn_increase_EIR[,1] = (lambda2A[,3] - lambda1A[,3])/lambda2A[,3]
 Estimated_propn_increase_EIR[,2] = (lambda2S[,3] - lambda1S[,3])/lambda2S[,3]
 
 for(i in 1:2){
-  lines(Estimated_propn_increase_EIR[,i] ~ time[1:240],col=colsd[i],lty=1,lwd=1)
+  lines(Estimated_propn_increase_EIR[61:240,i] ~ time[61:240],col=colsd[i],lty=1,lwd=1)
 }
 
 
